@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "461477743150",
+    "firebase_url": "https://days-810de.firebaseio.com",
+    "project_id": "days-810de",
+    "storage_bucket": "days-810de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461477743150:android:3f60b0603cb5b7902aedbf",
+        "android_client_info": {
+          "package_name": "tw.com.tse.to_be_a_better_man"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "461477743150-l1r312or16isau1bdoupn3kg6vmvkdff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tw.com.tse.to_be_a_better_man",
+            "certificate_hash": "1e6d22d7fdf032d7f282ffac8c42b24d6437d5a5"
+          }
+        },
+        {
+          "client_id": "461477743150-5utajmg3oc5e1jr3g5aqighrcjl4rs90.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqBOQwZAlOBEQviDBHvaE63E8_MFqxBEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "461477743150-5utajmg3oc5e1jr3g5aqighrcjl4rs90.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
