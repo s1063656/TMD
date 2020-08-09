@@ -11,9 +11,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
 
 
 public class home_page extends Fragment {
+
     RecyclerView main_dataList;
     main_RecycleView_adapter main_adapter;
     @Nullable

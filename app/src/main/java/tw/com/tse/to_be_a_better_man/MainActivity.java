@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
+
     private home_page homePage;
     private info_page infoPage;
     @Override
