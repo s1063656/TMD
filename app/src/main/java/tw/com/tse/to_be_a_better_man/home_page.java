@@ -11,17 +11,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.List;
 
 
 public class home_page extends Fragment {
-
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String userID = MainActivity.user;
     RecyclerView main_dataList;
     main_RecycleView_adapter main_adapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_page,container,false);
+
         return view;
     }
 

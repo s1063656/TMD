@@ -40,7 +40,7 @@ public class login extends AppCompatActivity {
     }
 
     public void sign_in(View view) {
-        EditText main_email = (EditText) findViewById(R.id.login_id);
+        final EditText main_email = (EditText) findViewById(R.id.login_id);
         final EditText main_password = (EditText) findViewById(R.id.login_password);
         if (main_email.getText().toString().trim().equals("")|| main_password.getText().toString().trim().equals("")) {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
@@ -55,6 +55,7 @@ public class login extends AppCompatActivity {
                             if(main_password.getText().toString().trim().equals(document.get("password").toString())){
                                 Toast.makeText(context,"登入成功",Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(login.this, MainActivity.class);
+                                intent.putExtra("userID",main_email.getText().toString().trim());
                                 startActivity(intent);
                                 finish();
                             }
