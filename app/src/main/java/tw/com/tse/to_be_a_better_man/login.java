@@ -36,39 +36,42 @@ public class login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.login_2);
     }
 
-    public void sign_in(View view) {
+    public void login(View view) {
         final EditText main_email = (EditText) findViewById(R.id.login_id);
         final EditText main_password = (EditText) findViewById(R.id.login_password);
         if (main_email.getText().toString().trim().equals("")|| main_password.getText().toString().trim().equals("")) {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");
         } else {
-            db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            if(main_password.getText().toString().trim().equals(document.get("password").toString())){
-                                Toast.makeText(context,"登入成功",Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(login.this, MainActivity.class);
-                                intent.putExtra("userID",main_email.getText().toString().trim());
-                                startActivity(intent);
-                                finish();
+            if(isVaildEmailFormat(main_email.getText().toString().trim())) {
+                db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                if (main_password.getText().toString().trim().equals(document.get("password").toString())) {
+                                    Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(login.this, MainActivity.class);
+                                    intent.putExtra("userID", main_email.getText().toString().trim());
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                            else{
-                                Toast.makeText(context,"密碼錯誤",Toast.LENGTH_SHORT).show();
-                            }
+                        } else {
+                            Log.d("LOGIN", "get failed with ", task.getException());
                         }
-                    } else {
-                        Log.d("LOGIN", "get failed with ", task.getException());
                     }
-                }
-            });
-
+                });
+            }else{
+                Toast.makeText(context, "信箱格式錯誤", Toast.LENGTH_SHORT).show();
+                Log.d("LOGIN", "信箱格式錯誤");
+            }
         }
     }
 

@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
+   
 public class info_page extends Fragment {
     Button logout;
     @Nullable
