@@ -1,5 +1,6 @@
 package tw.com.tse.to_be_a_better_man;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.media.Image;
 import android.view.LayoutInflater;
@@ -7,23 +8,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleView_adapter.ViewHolder> {
     ArrayList<Object> listOfData = new ArrayList();
-
+    int [][] time_set = {{6,8,10,12},{14,16,18,20},{22,0,2,4}};
     LayoutInflater main_RecycleView_inflater;
-
+    Context mcontext;
     public main_RecycleView_adapter(Context context){
-
+        mcontext=context;
         this.main_RecycleView_inflater = LayoutInflater.from(context);
+
     }
     @NonNull
     @Override
@@ -34,15 +36,33 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         if (listOfData.get(position).toString().equals("0")){
             holder.image.setImageResource(R.drawable.ic_empty_item);
             holder.title.setText("選擇屬於你的種子");
             holder.title.setTextSize(16);
-            holder.status.setText("陽性植物");
-            holder.aptitude.setText("陰性植物");
-            holder.days.setText("耐陰植物");
+            holder.status.setClickable(false);
+            holder.status.setVisibility(View.INVISIBLE);
+            holder.aptitude.setClickable(false);
+            holder.aptitude.setVisibility(View.INVISIBLE);
+            holder.days.setClickable(false);
+            holder.days.setVisibility(View.INVISIBLE);
+            holder.seedpack_1.setVisibility(View.VISIBLE);
+            holder.seedpack_1.setClickable(true);
+            holder.seedpack_2.setVisibility(View.VISIBLE);
+            holder.seedpack_2.setClickable(true);
+            holder.seedpack_3.setVisibility(View.VISIBLE);
+            holder.seedpack_3.setClickable(true);
         }
+        holder.image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mcontext,position+"種子得到了水分",Toast.LENGTH_SHORT).show();
+                /*Dialog dialog = new Dialog(mcontext,R.style.dialogNoBg);
+                dialog.setContentView();
+                dialog.*/
+            }
+        });
     }
 
     @Override
@@ -54,11 +74,14 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        public ImageView image;
+        public ImageView image,seedpack_1,seedpack_2,seedpack_3;
         public TextView title,status,days,aptitude;
         public ViewHolder (@NonNull View itemView){
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.item_snapshot);
+            seedpack_1 = (ImageView) itemView.findViewById(R.id.seedpack_1);
+            seedpack_2 = (ImageView) itemView.findViewById(R.id.seedpack_2);
+            seedpack_3 = (ImageView) itemView.findViewById(R.id.seedpack_3);
             title = (TextView) itemView.findViewById(R.id.item_title);
             status = (TextView) itemView.findViewById(R.id.item_status);
             aptitude = (TextView) itemView.findViewById(R.id.item_aptitude);
