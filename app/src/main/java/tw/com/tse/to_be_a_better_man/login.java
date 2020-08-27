@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -76,13 +80,27 @@ public class login extends AppCompatActivity {
     }
 
     public void registered(View v) {
-        final AlertDialog.Builder registered_page = new AlertDialog.Builder(this);
-        final View view = View.inflate(this, R.layout.registered_page2, null);
-        Button registered_btn = (Button) view.findViewById(R.id.button);
-        final EditText registered_email = (EditText) view.findViewById(R.id.registered_email);
-        final EditText registered_password = (EditText) view.findViewById(R.id.registered_password);
-        registered_page.setView(view);
-        final AlertDialog close = registered_page.show();
+        final Dialog registered_page = new Dialog(this,R.style.dialogNoBg);
+        final View view = View.inflate(this, R.layout.registered_page_3, null);
+        Button registered_btn = (Button) view.findViewById(R.id.button5);
+        final EditText registered_email = (EditText) view.findViewById(R.id.res_email);
+        final EditText registered_password = (EditText) view.findViewById(R.id.res_password);
+
+        registered_page.setContentView(view);
+        registered_page.show();
+        WindowManager m = getWindowManager();
+
+        android.view.WindowManager.LayoutParams p = registered_page.getWindow().getAttributes();  //獲取對話方塊當前的引數值
+
+        DisplayMetrics dm = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
+        p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
+        registered_page.getWindow().setAttributes(p);     //設定生效
+
 
 
         registered_btn.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +135,7 @@ public class login extends AppCompatActivity {
                                                     Log.w(TAG, "Error adding document", e);
                                                 }
                                             });
-                                    close.dismiss();
+                                    registered_page.dismiss();
                                 }
 
                             } else {
