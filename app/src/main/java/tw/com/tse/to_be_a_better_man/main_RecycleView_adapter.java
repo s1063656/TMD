@@ -1,11 +1,15 @@
 package tw.com.tse.to_be_a_better_man;
 
+import android.app.ActivityManager;
 import android.app.Dialog;
+import android.view.WindowManager;
 import android.content.Context;
 import android.media.Image;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,10 +24,12 @@ import java.util.ArrayList;
 public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleView_adapter.ViewHolder> {
     ArrayList<Object> listOfData = new ArrayList();
     int [][] time_set = {{6,8,10,12},{14,16,18,20},{22,0,2,4}};
+
     LayoutInflater main_RecycleView_inflater;
     Context mcontext;
     public main_RecycleView_adapter(Context context){
         mcontext=context;
+
         this.main_RecycleView_inflater = LayoutInflater.from(context);
 
     }
@@ -54,13 +60,22 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             holder.seedpack_3.setVisibility(View.VISIBLE);
             holder.seedpack_3.setClickable(true);
         }
-        holder.image.setOnClickListener(new View.OnClickListener() {
+
+
+        holder.seedpack_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mcontext,position+"種子得到了水分",Toast.LENGTH_SHORT).show();
-                /*Dialog dialog = new Dialog(mcontext,R.style.dialogNoBg);
-                dialog.setContentView();
-                dialog.*/
+                Toast.makeText(mcontext,"陽性種子",Toast.LENGTH_SHORT).show();
+                Dialog dialog = new Dialog(mcontext,R.style.dialogNoBg);
+                dialog.setContentView(R.layout.setting);
+                dialog.show();
+                DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
+                android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
+                int width = dm2.widthPixels;
+                int height = dm2.heightPixels;
+                p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
+                p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
+                dialog.getWindow().setAttributes(p);
             }
         });
     }

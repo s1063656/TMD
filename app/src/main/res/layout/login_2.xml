@@ -47,7 +47,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center|center_horizontal|center_vertical"
-        android:text="香草養成計畫"
+        android:text="香草習慣"
         android:textColor="@color/cardview_dark_background"
         android:textSize="48dp"
         android:textStyle="bold"
