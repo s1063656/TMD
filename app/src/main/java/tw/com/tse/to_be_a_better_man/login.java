@@ -118,7 +118,6 @@ public class login extends AppCompatActivity {
                                     Toast.makeText(context, "帳號已存在於資料庫", Toast.LENGTH_LONG).show();
                                     Log.d(TAG, "註冊失敗,帳號已存在");
                                 } else {
-
                                     Map<String, Object> user = new HashMap<>();
                                     user.put("password", registered_password.getText().toString().trim());
                                     db.collection("users").document(userID)
