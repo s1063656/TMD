@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 public class main_farm extends Fragment {
     RecyclerView main_dataList;
-    main_RecycleView_adapter main_adapter;
+    static main_RecycleView_adapter main_adapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
