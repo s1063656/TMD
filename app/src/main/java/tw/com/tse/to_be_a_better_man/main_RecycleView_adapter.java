@@ -2,6 +2,10 @@ package tw.com.tse.to_be_a_better_man;
 
 import android.app.ActivityManager;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
 import android.view.WindowManager;
@@ -20,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -50,6 +55,8 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     LayoutInflater main_RecycleView_inflater;
     Context mcontext;
     ArrayList<Map> HabitList = MainActivity.mainHabitList;
+    NotificationManager notificationManager;
+    NotificationChannel notificationChannel;
 
     public main_RecycleView_adapter(Context context){
         mcontext=context;
@@ -59,6 +66,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = main_RecycleView_inflater.inflate(R.layout.main_item_2,parent,false);
+
         return new ViewHolder(view);
     }
     @Override
@@ -83,6 +91,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 @Override
                 public void onClick(View v) {
                     createFirstStep("陽性種子",6);
+                    setNotivication();
                 }});
             holder.seedpack_2.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -95,7 +104,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                     createFirstStep("耐陰種子",22);
                 }});
         }else{
-
             holder.title.setText(MainActivity.mainHabitList.get(position).get("habitName").toString());
             try {
                 holder.days.setText("天數 : "+calculateTheDay(MainActivity.mainHabitList.get(position).get("date").toString()));
@@ -115,6 +123,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+
         }
         }
     @Override
@@ -145,7 +154,18 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             setItemImage(d,viewHolder);
         }
     }
-
+    private void setNotivication(){
+        NotificationChannel channel = new NotificationChannel("Ch1", "Day29", NotificationManager.IMPORTANCE_HIGH);
+        NotificationManager manager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notification = new Notification.Builder(mcontext, "Ch1")
+                .setSmallIcon(R.drawable.notification_icon_background)
+                .setContentTitle("通知")
+                .setContentText("第29天~")
+                .setAutoCancel(true)
+                .build();
+        manager.createNotificationChannel(channel);
+        manager.notify(0,notification);
+    }
     public void setItemImage(int d,ViewHolder viewHolder){
         if(d<3){
             viewHolder.image.setImageResource(R.drawable.rosemary_0);
