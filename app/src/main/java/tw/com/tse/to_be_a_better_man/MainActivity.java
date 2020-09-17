@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         }
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container,main_farm).commitAllowingStateLoss();
-
     }
     public void info(View v){
         infoPage = new info_page();

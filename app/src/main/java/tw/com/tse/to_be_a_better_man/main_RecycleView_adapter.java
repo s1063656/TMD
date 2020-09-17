@@ -63,7 +63,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-
         if (MainActivity.mainHabitID.get(position).equals("System CREATE!!!")){
             holder.image.setImageResource(R.drawable.ic_empty_item);
             holder.title.setText("選擇屬於你的種子");
@@ -80,50 +79,48 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             holder.seedpack_2.setClickable(true);
             holder.seedpack_3.setVisibility(View.VISIBLE);
             holder.seedpack_3.setClickable(true);
-
             holder.seedpack_1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    Toast.makeText(mcontext,"陽性種子",Toast.LENGTH_SHORT).show();
-                    final Dialog dialog = new Dialog(mcontext,R.style.dialogNoBg);
-                    dialog.setContentView(R.layout.setting);
-                    dialog.show();
-                    DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
-                    android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
-                    int width = dm2.widthPixels;
-                    int height = dm2.heightPixels;
-                    p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
-                    p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
-                    dialog.getWindow().setAttributes(p);
-                    final EditText habitName = (EditText)dialog.findViewById(R.id.habitName);
-                    Button btn1 = (Button) dialog.findViewById(R.id.btn1);
-                    btn1.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if(habitName.getText().toString().equals("")){
-                                Toast.makeText(mcontext,"請輸入習慣名稱",Toast.LENGTH_SHORT).show();
-                            }else{
-                                create(habitName.getText().toString().trim(),dialog);
-                            }}});}});
+                    createFirstStep("陽性種子",6);
+                }});
+            holder.seedpack_2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createFirstStep("陰性種子",14);
+                }});
+            holder.seedpack_3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createFirstStep("耐陰種子",22);
+                }});
         }else{
+
             holder.title.setText(MainActivity.mainHabitList.get(position).get("habitName").toString());
             try {
                 holder.days.setText("天數 : "+calculateTheDay(MainActivity.mainHabitList.get(position).get("date").toString()));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
+            int a = Integer.parseInt(MainActivity.mainHabitList.get(position).get("time").toString());
+            if(a==22){
+                holder.aptitude.setText("適性 : "+a+" ~ "+0);
+            }else if(a>=24){
+                holder.aptitude.setText("適性 : "+(a-24)+" ~ "+(a-24));
+            }  else{
+                holder.aptitude.setText("適性 : " + a + " ~ " + (a + 2));
+            }
+            try {
+                grownUp(Integer.parseInt(calculateTheDay(MainActivity.mainHabitList.get(position).get("date").toString())),a,holder);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
-
         }
-
     @Override
     public int getItemCount() {
-
         return MainActivity.mainHabitID.size();
     }
-
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView image,seedpack_1,seedpack_2,seedpack_3;
         public TextView title,status,days,aptitude;
@@ -137,10 +134,38 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             status = (TextView) itemView.findViewById(R.id.item_status);
             aptitude = (TextView) itemView.findViewById(R.id.item_aptitude);
             days = (TextView) itemView.findViewById(R.id.item_days);
-
         }
     }
-    public void create(final String habitName, final Dialog dialog){
+    public void grownUp(int d,int a,ViewHolder viewHolder){
+        if(a>=22){
+
+        }else if(a>=14){
+
+        }else{
+            setItemImage(d,viewHolder);
+        }
+    }
+
+    public void setItemImage(int d,ViewHolder viewHolder){
+        if(d<3){
+            viewHolder.image.setImageResource(R.drawable.rosemary_0);
+        }else if(d<6){
+            viewHolder.image.setImageResource(R.drawable.rosemary_1);
+        }else if(d<9){
+            viewHolder.image.setImageResource(R.drawable.rosemary_2);
+        }else if(d<12){
+            viewHolder.image.setImageResource(R.drawable.rosemary_3);
+        }else if(d<15){
+            viewHolder.image.setImageResource(R.drawable.rosemary_4);
+        }else if(d<18){
+            viewHolder.image.setImageResource(R.drawable.rosemary_5);
+        }else if(d<21){
+            viewHolder.image.setImageResource(R.drawable.rosemary_6);
+        }else{
+            viewHolder.image.setImageResource(R.drawable.rosemary_7);
+        }
+    }
+    public void createSecondStep(final String habitName, final Dialog dialog, final int t){
         db.collection(MainActivity.user).document(habitName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -151,11 +176,14 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                         Log.d(TAG, "新增失敗,習慣已存在");
                     } else {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-
                         Date date = new Date(System.currentTimeMillis());
                         final Map<String, Object> habits = new HashMap<>();
                         habits.put("habitName", habitName);
-                        habits.put("time", 6);
+                        if(t>=24){
+                            habits.put("time", t-24);
+                        }else{
+                            habits.put("time", t);
+                        }
                         habits.put("date",simpleDateFormat.format(date));
                         db.collection(MainActivity.user).document(habitName).set(habits)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -173,18 +201,76 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                         Log.w(TAG, "Error adding document", e);
                                     }
                                 });
-
-
-
                         dialog.dismiss(); }}}});
     }
-
     public String calculateTheDay(String date) throws ParseException {
-
         Date last= new SimpleDateFormat("yyyy/MM/dd").parse(date);
         Date now = new Date(System.currentTimeMillis());
         long l = last.getTime()-now.getTime()>0 ? last.getTime()-now.getTime():
                 now.getTime()-last.getTime();
         return Long.toString(l/(24*60*60*1000));
+    }
+    public void createFirstStep(String type,final int t){
+        Toast.makeText(mcontext,type,Toast.LENGTH_SHORT).show();
+        final Dialog dialog = new Dialog(mcontext,R.style.dialogNoBg);
+        dialog.setContentView(R.layout.setting);
+        dialog.show();
+        DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
+        android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
+        int width = dm2.widthPixels;
+        int height = dm2.heightPixels;
+        p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
+        p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
+        dialog.getWindow().setAttributes(p);
+        final EditText habitName = (EditText)dialog.findViewById(R.id.habitName);
+        Button btn1 = (Button) dialog.findViewById(R.id.btn1);
+        Button btn2 = (Button) dialog.findViewById(R.id.btn2);
+        Button btn3 = (Button) dialog.findViewById(R.id.btn3);
+        Button btn4 = (Button) dialog.findViewById(R.id.btn4);
+        if(t+2>=24) {
+            int t2 = 0;
+            btn1.setText(t+" ~ "+t2);
+            btn2.setText(t2+" ~ "+(t2+2));
+            btn3.setText(t2+2+" ~ "+(t2+4));
+            btn4.setText(t2+4+" ~ "+(t2+6));
+        }else{
+            btn1.setText(t+" ~ "+(t+2));
+            btn2.setText(t+2+" ~ "+(t+4));
+            btn3.setText(t+4+" ~ "+(t+6));
+            btn4.setText(t+6+" ~ "+(t+8));
+        }
+
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(habitName.getText().toString().equals("")){
+                    Toast.makeText(mcontext,"請輸入習慣名稱",Toast.LENGTH_SHORT).show();
+                }else{
+                    createSecondStep(habitName.getText().toString().trim(),dialog,t);
+                }}});
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(habitName.getText().toString().equals("")){
+                    Toast.makeText(mcontext,"請輸入習慣名稱",Toast.LENGTH_SHORT).show();
+                }else{
+                        createSecondStep(habitName.getText().toString().trim(),dialog,t+2);
+                }}});
+        btn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(habitName.getText().toString().equals("")){
+                    Toast.makeText(mcontext,"請輸入習慣名稱",Toast.LENGTH_SHORT).show();
+                }else{
+                    createSecondStep(habitName.getText().toString().trim(),dialog,t+4);
+                }}});
+        btn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(habitName.getText().toString().equals("")){
+                    Toast.makeText(mcontext,"請輸入習慣名稱",Toast.LENGTH_SHORT).show();
+                }else{
+                    createSecondStep(habitName.getText().toString().trim(),dialog,t+6);
+                }}});
     }
 }

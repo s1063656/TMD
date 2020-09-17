@@ -85,24 +85,17 @@ public class login extends AppCompatActivity {
         Button registered_btn = (Button) view.findViewById(R.id.button5);
         final EditText registered_email = (EditText) view.findViewById(R.id.res_email);
         final EditText registered_password = (EditText) view.findViewById(R.id.res_password);
-
         registered_page.setContentView(view);
         registered_page.show();
         WindowManager m = getWindowManager();
-
         android.view.WindowManager.LayoutParams p = registered_page.getWindow().getAttributes();  //獲取對話方塊當前的引數值
-
         DisplayMetrics dm = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-
         p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
         p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
         registered_page.getWindow().setAttributes(p);     //設定生效
-
-
-
         registered_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,7 +129,6 @@ public class login extends AppCompatActivity {
                                             });
                                     registered_page.dismiss();
                                 }
-
                             } else {
                                 Log.d(TAG, "get failed with ", task.getException());
                             }
@@ -147,8 +139,6 @@ public class login extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     private boolean isVaildEmailFormat(String email) {

@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/ic_main_info"
+            android:onClick="info"
             android:text="個介" />
     </LinearLayout>
 

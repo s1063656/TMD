@@ -138,7 +138,7 @@
         app:layout_constraintEnd_toEndOf="@+id/view2"
         app:layout_constraintStart_toStartOf="@+id/guideline15"
         app:layout_constraintTop_toTopOf="@+id/view2"
-        app:srcCompat="@drawable/ic_seedpack" />
+        app:srcCompat="@drawable/seedpack_1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
