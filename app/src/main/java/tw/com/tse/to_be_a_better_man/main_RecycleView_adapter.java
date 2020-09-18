@@ -91,7 +91,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 @Override
                 public void onClick(View v) {
                     createFirstStep("陽性種子",6);
-                    setNotivication();
                 }});
             holder.seedpack_2.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -154,13 +153,13 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             setItemImage(d,viewHolder);
         }
     }
-    private void setNotivication(){
-        NotificationChannel channel = new NotificationChannel("Ch1", "Day29", NotificationManager.IMPORTANCE_HIGH);
+    private void setNotivication(String Title,String Text){
+        NotificationChannel channel = new NotificationChannel("channel", Title, NotificationManager.IMPORTANCE_HIGH);
         NotificationManager manager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification.Builder(mcontext, "Ch1")
+        Notification notification = new Notification.Builder(mcontext, "channel")
                 .setSmallIcon(R.drawable.notification_icon_background)
-                .setContentTitle("通知")
-                .setContentText("第29天~")
+                .setContentTitle(Title)
+                .setContentText(Text)
                 .setAutoCancel(true)
                 .build();
         manager.createNotificationChannel(channel);
@@ -221,7 +220,8 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                         Log.w(TAG, "Error adding document", e);
                                     }
                                 });
-                        dialog.dismiss(); }}}});
+                        dialog.dismiss();
+                        setNotivication(habitName,"趕緊來照顧你的迷迭香吧 ~");}}}});
     }
     public String calculateTheDay(String date) throws ParseException {
         Date last= new SimpleDateFormat("yyyy/MM/dd").parse(date);

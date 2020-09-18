@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -35,9 +36,18 @@ import java.util.Map;
 public class login extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Context context = this;
+    String userid,password;
+    SharedPreferences pref ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        pref = getSharedPreferences("login",MODE_PRIVATE);
+        userid = getSharedPreferences("login", MODE_PRIVATE)
+                .getString("USERID", "");
+        password = getSharedPreferences("login",MODE_PRIVATE)
+                .getString("PASSWORD","");
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_2);
@@ -46,6 +56,10 @@ public class login extends AppCompatActivity {
     public void login(View view) {
         final EditText main_email = (EditText) findViewById(R.id.login_id);
         final EditText main_password = (EditText) findViewById(R.id.login_password);
+        if(!userid.equals("")&&!password.equals("")){
+            main_email.setText(userid);
+            main_password.setText(password);
+        }
         if (main_email.getText().toString().trim().equals("")|| main_password.getText().toString().trim().equals("")) {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");
@@ -58,6 +72,10 @@ public class login extends AppCompatActivity {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
                                 if (main_password.getText().toString().trim().equals(document.get("password").toString())) {
+                                    pref.edit()
+                                            .putString("USERID",main_email.getText().toString().trim())
+                                            .putString("PASSWORD",main_password.getText().toString().trim())
+                                            .apply();
                                     Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(login.this, MainActivity.class);
                                     intent.putExtra("userID", main_email.getText().toString().trim());
