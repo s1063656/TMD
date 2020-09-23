@@ -38,28 +38,62 @@ public class login extends AppCompatActivity {
     Context context = this;
     String userid,password;
     SharedPreferences pref ;
+    EditText main_email,main_password;
+    static Boolean standBy = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login_2);
+        init();
+    }
+
+    public void init(){
         pref = getSharedPreferences("login",MODE_PRIVATE);
         userid = getSharedPreferences("login", MODE_PRIVATE)
                 .getString("USERID", "");
         password = getSharedPreferences("login",MODE_PRIVATE)
                 .getString("PASSWORD","");
 
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_2);
+        main_email = (EditText) findViewById(R.id.login_id);
+        main_password = (EditText) findViewById(R.id.login_password);
+        if(!userid.equals("")&&!password.equals("")) {
+            main_email.setText(userid);
+            main_password.setText(password);
+            if (!standBy) {
+                if (isVaildEmailFormat(main_email.getText().toString().trim())) {
+                    db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    if (main_password.getText().toString().trim().equals(document.get("password").toString())) {
+                                        pref.edit()
+                                                .putString("USERID", main_email.getText().toString().trim())
+                                                .putString("PASSWORD", main_password.getText().toString().trim())
+                                                .apply();
+                                        Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(login.this, MainActivity.class);
+                                        intent.putExtra("userID", main_email.getText().toString().trim());
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            } else {
+                                Log.d("LOGIN", "get failed with ", task.getException());
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 
     public void login(View view) {
-        final EditText main_email = (EditText) findViewById(R.id.login_id);
-        final EditText main_password = (EditText) findViewById(R.id.login_password);
-        if(!userid.equals("")&&!password.equals("")){
-            main_email.setText(userid);
-            main_password.setText(password);
-        }
         if (main_email.getText().toString().trim().equals("")|| main_password.getText().toString().trim().equals("")) {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");

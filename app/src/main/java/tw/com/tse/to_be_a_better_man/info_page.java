@@ -19,7 +19,6 @@ public class info_page extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.info_page,container,false);
         logout = (Button) view.findViewById(R.id.button2);
-
         return view;
     }
 
@@ -30,6 +29,7 @@ public class info_page extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), login.class);
+                login.standBy=true;
                 startActivity(intent);
                 getActivity().finish();
             }

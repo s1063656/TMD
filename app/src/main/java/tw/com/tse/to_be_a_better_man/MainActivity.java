@@ -3,47 +3,86 @@ package tw.com.tse.to_be_a_better_man;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     static String user;
-    private Fragment main_farm ;
+    private Fragment main_farm;
     private info_page infoPage;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        createNotificationChanel();
         user = this.getIntent().getStringExtra("userID");
         mainHabitList = new ArrayList();
-        mainHabitID=new ArrayList();
-        if(!mainHabitID.contains("System CREATE!!!")){
+        mainHabitID = new ArrayList();
+        startService();
+        createField();
+        init();
+        main_farm = new main_farm();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
+    }
+
+    public void info(View v) {
+        infoPage = new info_page();
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, infoPage).commitAllowingStateLoss();
+    }
+
+    public void logout(View view) {
+        login.standBy = true;
+        Intent intent = new Intent(this, login.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void farm(View view) {
+        main_farm = new main_farm();
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, main_farm).commitAllowingStateLoss();
+    }
+
+    private void createNotificationChanel() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel vanilla = new NotificationChannel("VANILLA", "Vanilla", NotificationManager.IMPORTANCE_DEFAULT);
+            vanilla.setDescription("this is VANILLA");
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(vanilla);
+        }
+    }
+
+    private void createField() {
+        if (!mainHabitID.contains("System CREATE!!!")) {
             mainHabitID.add("System CREATE!!!");
             Map<String, Object> habits = new HashMap<>();
-            habits.put("habitName","System CREATE!!!");
+            habits.put("habitName", "System CREATE!!!");
             mainHabitList.add(habits);
         }
+    }
+
+    private void init() {
         db.collection(user)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -67,16 +106,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        main_farm = new main_farm();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_container,main_farm).commitAllowingStateLoss();
     }
-    public void info(View v){
-        infoPage = new info_page();
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_container,infoPage).commitAllowingStateLoss();
-    }
-    public void logout (View view){
-        Intent intent = new Intent(this, login.class);
-        startActivity(intent);
-        finish();
+
+    private void startService() {
+        Intent intent = new Intent(MainActivity.this, MyService.class);
+        startService(intent);
     }
 }
