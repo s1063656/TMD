@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void logout(View view) {
         login.standBy = true;
+        mainAlarms.clear();
+        mainHabitList.clear();
+        mainHabitID.clear();
         Intent intent = new Intent(this, login.class);
         startActivity(intent);
         finish();

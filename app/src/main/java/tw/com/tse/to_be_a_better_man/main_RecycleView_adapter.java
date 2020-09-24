@@ -112,14 +112,14 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.item_snapshot);
-            seedpack_1 = (ImageView) itemView.findViewById(R.id.seedpack_1);
-            seedpack_2 = (ImageView) itemView.findViewById(R.id.seedpack_2);
-            seedpack_3 = (ImageView) itemView.findViewById(R.id.seedpack_3);
-            title = (TextView) itemView.findViewById(R.id.item_title);
-            status = (TextView) itemView.findViewById(R.id.item_status);
-            aptitude = (TextView) itemView.findViewById(R.id.item_aptitude);
-            days = (TextView) itemView.findViewById(R.id.item_days);
+            image = itemView.findViewById(R.id.item_snapshot);
+            seedpack_1 = itemView.findViewById(R.id.seedpack_1);
+            seedpack_2 = itemView.findViewById(R.id.seedpack_2);
+            seedpack_3 = itemView.findViewById(R.id.seedpack_3);
+            title = itemView.findViewById(R.id.item_title);
+            status = itemView.findViewById(R.id.item_status);
+            aptitude = itemView.findViewById(R.id.item_aptitude);
+            days = itemView.findViewById(R.id.item_days);
         }
     }
 
@@ -144,10 +144,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        calendar.set(Calendar.MINUTE, 48);
-        calendar.set(Calendar.HOUR_OF_DAY, 22);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.SECOND,10);
         long selectTime = calendar.getTimeInMillis();
         if (systemTime > selectTime) {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
@@ -157,7 +154,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         firstTime += time;
         manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000*10, pendingIntent);
         Log.d("setAlarm","done");
-
     }
 
     public void setItemImage(int d, ViewHolder viewHolder, int type) {
