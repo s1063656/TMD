@@ -29,9 +29,10 @@ public class MainActivity extends AppCompatActivity {
     static String user;
     private Fragment main_farm;
     private info_page infoPage;
+    static ArrayList<ArrayList<String>> mainAlarms;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
-
+    static String [] channels = {"ChannelOf0","ChannelOf2","ChannelOf4","ChannelOf6","ChannelOf8","ChannelOf10","ChannelOf12","ChannelOf14","ChannelOf16","ChannelOf18","ChannelOf20","ChannelOf22"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         user = this.getIntent().getStringExtra("userID");
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
+        mainAlarms=new ArrayList();
+        for(int i =0;i<12;i++){
+            mainAlarms.add(new ArrayList());
+        }
         startService();
         createField();
         init();
@@ -66,10 +71,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void createNotificationChanel() {
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel vanilla = new NotificationChannel("VANILLA", "Vanilla", NotificationManager.IMPORTANCE_DEFAULT);
-            vanilla.setDescription("this is VANILLA");
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(vanilla);
+            manager.createNotificationChannel(new NotificationChannel("VANILLA", "Vanilla", NotificationManager.IMPORTANCE_DEFAULT));
+            for(int i = 0;i<channels.length;i++){
+                manager.createNotificationChannel(new NotificationChannel(channels[i], channels[i], NotificationManager.IMPORTANCE_DEFAULT));
+            }
         }
     }
 

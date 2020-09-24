@@ -1,16 +1,25 @@
 package tw.com.tse.to_be_a_better_man;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 import java.util.Date;
 
 public class MyService extends Service {
+
     public MyService() {
     }
 
@@ -22,6 +31,7 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        startForeground(1, setNotification());
         Log.d("service","onCreate()");
     }
     @Override
@@ -34,11 +44,10 @@ public class MyService extends Service {
             }
         }).start();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        //这里是定时的,这里设置的是每隔两秒打印一次时间
-        int durtime = 10*60 * 1000;
+        int durtime = 10 * 1000;
         long triggerAtTime = SystemClock.elapsedRealtime() + durtime;
-
         Intent i = new Intent(this,AlarmReciver.class);
+        i.putExtra("identify",-1);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
         return START_REDELIVER_INTENT;
@@ -49,4 +58,22 @@ public class MyService extends Service {
         super.onDestroy();
         Log.d("service","onDestroy()");
     }
+
+    public Notification setNotification(){
+        NotificationChannel channel = new NotificationChannel("service",
+                "SERVICE",
+                NotificationManager.IMPORTANCE_DEFAULT);
+
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+        Notification notification = new NotificationCompat.Builder(this,"service")
+                .setContentTitle("")
+                .setContentText("")
+                .build();
+
+        return notification;
+
+    }
+
+
 }

@@ -94,6 +94,10 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            if(!MainActivity.mainAlarms.get(a/2).contains(MainActivity.mainHabitList.get(position).get("habitName").toString())){
+                setAlarm(a/2);
+                MainActivity.mainAlarms.get(a/2).add(MainActivity.mainHabitList.get(position).get("habitName").toString());
+            }
         }
     }
 
@@ -129,30 +133,19 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
     }
 
-    private void setNotivication(String Title, String Text) {
-        NotificationChannel channel = new NotificationChannel("channel", Title, NotificationManager.IMPORTANCE_HIGH);
-        NotificationManager manager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification.Builder(mcontext, "channel")
-                .setSmallIcon(R.drawable.notification_icon_background)
-                .setContentTitle(Title)
-                .setContentText(Text)
-                .setAutoCancel(true)
-                .build();
-        manager.createNotificationChannel(channel);
-        manager.notify(0, notification);
-    }
-
-    private void setAlarm() {
-        AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
+    private void setAlarm(int identifier) {
         Intent intent = new Intent(mcontext, AlarmReciver.class);
+        intent.putExtra("identify",identifier);
+
+        AlarmManager manager = (AlarmManager)mcontext.getSystemService(ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, 1, intent, 0);
-        long firstTime = SystemClock.elapsedRealtime();    // 開機之後到現在的執行時間(包括睡眠時間)
+        long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT+8")); // 這裡時區需要設定一下，不然會有8個小時的時間差
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 13);
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        calendar.set(Calendar.MINUTE, 48);
+        calendar.set(Calendar.HOUR_OF_DAY, 22);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         long selectTime = calendar.getTimeInMillis();
@@ -162,7 +155,8 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, selectTime, 1000 * 120, pendingIntent);
+        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000*10, pendingIntent);
+        Log.d("setAlarm","done");
 
     }
 
@@ -197,8 +191,10 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                         habits.put("habitName", habitName);
                         if (t >= 24) {
                             habits.put("time", t - 24);
+                            //setAlarm(t-24);
                         } else {
                             habits.put("time", t);
+                            //setAlarm(t/2);
                         }
                         habits.put("date", simpleDateFormat.format(date));
                         db.collection(MainActivity.user).document(habitName).set(habits)
@@ -218,7 +214,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                     }
                                 });
                         dialog.dismiss();
-                        setNotivication(habitName, "趕緊來照顧你的迷迭香吧 ~");
+
                     }
                 }
             }
@@ -236,7 +232,9 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     public void createFirstStep(String type, final int t) {
         Toast.makeText(mcontext, type, Toast.LENGTH_SHORT).show();
         final Dialog dialog = new Dialog(mcontext, R.style.dialogNoBg);
+        
         dialog.setContentView(R.layout.setting);
+        Button [] buttons = {dialog.findViewById(R.id.btn1),dialog.findViewById(R.id.btn2),dialog.findViewById(R.id.btn3),dialog.findViewById(R.id.btn4)};
         dialog.show();
         DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
         android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
@@ -245,64 +243,33 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
         p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
         dialog.getWindow().setAttributes(p);
-        final EditText habitName = (EditText) dialog.findViewById(R.id.habitName);
-        Button btn1 = (Button) dialog.findViewById(R.id.btn1);
-        Button btn2 = (Button) dialog.findViewById(R.id.btn2);
-        Button btn3 = (Button) dialog.findViewById(R.id.btn3);
-        Button btn4 = (Button) dialog.findViewById(R.id.btn4);
+        final EditText habitName = dialog.findViewById(R.id.habitName);
+
         if (t + 2 >= 24) {
             int t2 = 0;
-            btn1.setText(t + " ~ " + t2);
-            btn2.setText(t2 + " ~ " + (t2 + 2));
-            btn3.setText(t2 + 2 + " ~ " + (t2 + 4));
-            btn4.setText(t2 + 4 + " ~ " + (t2 + 6));
+            buttons[0].setText(t + " ~ " + t2);
+            buttons[1].setText(t2 + " ~ " + (t2 + 2));
+            buttons[2].setText(t2 + 2 + " ~ " + (t2 + 4));
+            buttons[3].setText(t2 + 4 + " ~ " + (t2 + 6));
         } else {
-            btn1.setText(t + " ~ " + (t + 2));
-            btn2.setText(t + 2 + " ~ " + (t + 4));
-            btn3.setText(t + 4 + " ~ " + (t + 6));
-            btn4.setText(t + 6 + " ~ " + (t + 8));
+            buttons[0].setText(t + " ~ " + (t + 2));
+            buttons[1].setText(t + 2 + " ~ " + (t + 4));
+            buttons[2].setText(t + 4 + " ~ " + (t + 6));
+            buttons[3].setText(t + 6 + " ~ " + (t + 8));
         }
-
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (habitName.getText().toString().equals("")) {
-                    Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
-                } else {
-                    createSecondStep(habitName.getText().toString().trim(), dialog, t);
+        for(int i =0;i<buttons.length;i++){
+            final int time = i;
+            buttons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (habitName.getText().toString().equals("")) {
+                        Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
+                    } else {
+                        createSecondStep(habitName.getText().toString().trim(), dialog, t+(time*2));
+                    }
                 }
-            }
-        });
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (habitName.getText().toString().equals("")) {
-                    Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
-                } else {
-                    createSecondStep(habitName.getText().toString().trim(), dialog, t + 2);
-                }
-            }
-        });
-        btn3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (habitName.getText().toString().equals("")) {
-                    Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
-                } else {
-                    createSecondStep(habitName.getText().toString().trim(), dialog, t + 4);
-                }
-            }
-        });
-        btn4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (habitName.getText().toString().equals("")) {
-                    Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
-                } else {
-                    createSecondStep(habitName.getText().toString().trim(), dialog, t + 6);
-                }
-            }
-        });
+            });
+        }
     }
 
     private void createField(ViewHolder holder) {
