@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +30,10 @@ public class main_farm extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        main_dataList = (RecyclerView) view.findViewById(R.id.farm_datalist);
 
+
+        main_dataList = (RecyclerView) view.findViewById(R.id.farm_datalist);
+        main_dataList.setItemViewCacheSize(200);
         main_adapter = new main_RecycleView_adapter(getActivity());
         GridLayoutManager main_gridLayoutManager = new GridLayoutManager(getActivity(),1,GridLayoutManager.VERTICAL,false);
         main_dataList.setLayoutManager(main_gridLayoutManager);

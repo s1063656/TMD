@@ -98,6 +98,7 @@ public class login extends AppCompatActivity {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");
         } else {
+
             if(isVaildEmailFormat(main_email.getText().toString().trim())) {
                 db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -115,9 +116,14 @@ public class login extends AppCompatActivity {
                                     intent.putExtra("userID", main_email.getText().toString().trim());
                                     startActivity(intent);
                                     finish();
+
                                 } else {
+                                    Log.d("login","fail");
                                     Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
                                 }
+                            }else{
+                                Toast.makeText(context,"請檢查輸入的帳號密碼是否有誤\n並確實註冊帳號密碼",Toast.LENGTH_LONG).show();
+                                Log.d("login","login???");
                             }
                         } else {
                             Log.d("LOGIN", "get failed with ", task.getException());
@@ -128,6 +134,7 @@ public class login extends AppCompatActivity {
                 Toast.makeText(context, "信箱格式錯誤", Toast.LENGTH_SHORT).show();
                 Log.d("LOGIN", "信箱格式錯誤");
             }
+
         }
     }
 
@@ -137,9 +144,9 @@ public class login extends AppCompatActivity {
         Button registered_btn = (Button) view.findViewById(R.id.button5);
         final EditText registered_email = (EditText) view.findViewById(R.id.res_email);
         final EditText registered_password = (EditText) view.findViewById(R.id.res_password);
+        final EditText registered_name = view.findViewById(R.id.res_name);
         registered_page.setContentView(view);
         registered_page.show();
-        WindowManager m = getWindowManager();
         android.view.WindowManager.LayoutParams p = registered_page.getWindow().getAttributes();  //獲取對話方塊當前的引數值
         DisplayMetrics dm = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -153,6 +160,9 @@ public class login extends AppCompatActivity {
             public void onClick(View v) {
                 final String TAG = "registered";
                 final String userID = registered_email.getText().toString().trim();
+                if(registered_name.getText().toString().equals("")){
+                    Toast.makeText(context,"名稱欄位不能空白",Toast.LENGTH_SHORT).show();
+                }else{
                 if (isVaildEmailFormat(userID)) {
                     db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -164,6 +174,7 @@ public class login extends AppCompatActivity {
                                     Log.d(TAG, "註冊失敗,帳號已存在");
                                 } else {
                                     Map<String, Object> user = new HashMap<>();
+                                    user.put("name",registered_name.getText().toString().trim());
                                     user.put("password", registered_password.getText().toString().trim());
                                     db.collection("users").document(userID)
                                             .set(user)
@@ -179,6 +190,7 @@ public class login extends AppCompatActivity {
                                                     Log.w(TAG, "Error adding document", e);
                                                 }
                                             });
+                                    Toast.makeText(context,"恭喜你註冊成功",Toast.LENGTH_LONG).show();
                                     registered_page.dismiss();
                                 }
                             } else {
@@ -189,8 +201,9 @@ public class login extends AppCompatActivity {
                 } else {
                     Toast.makeText(context, "信箱格式不符合", Toast.LENGTH_LONG).show();
                 }
-            }
+            }}
         });
+
     }
 
     private boolean isVaildEmailFormat(String email) {

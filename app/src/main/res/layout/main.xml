@@ -38,8 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="logout"
-            android:background="@drawable/ic_main_logout"
-            android:text="登出" />
+            android:background="@drawable/btn_h"
+             />
 
         <Button
             android:id="@+id/button9"
@@ -47,17 +47,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="farm"
-            android:background="@drawable/ic_main_farm"
-            android:text="農田" />
+            android:background="@drawable/btn_f"
+             />
 
         <Button
             android:id="@+id/button10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/ic_main_info"
+            android:background="@drawable/btn_i"
             android:onClick="info"
-            android:text="個介" />
+             />
     </LinearLayout>
 
     <FrameLayout

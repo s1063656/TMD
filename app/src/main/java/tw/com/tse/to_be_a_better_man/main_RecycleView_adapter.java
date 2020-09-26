@@ -39,20 +39,25 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TimeZone;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.ALARM_SERVICE;
 
 public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleView_adapter.ViewHolder> {
+    int[][] seed = {
+            {R.drawable.rosemary_0, R.drawable.rosemary_1, R.drawable.rosemary_2, R.drawable.rosemary_3, R.drawable.rosemary_4, R.drawable.rosemary_5, R.drawable.rosemary_6, R.drawable.rosemary_7},
+            {R.drawable.basil_1, R.drawable.basil_2, R.drawable.basil_3, R.drawable.basil_4, R.drawable.basil_5, R.drawable.basil_6, R.drawable.basil_7, R.drawable.basil_8},
+            {R.drawable.mint_1, R.drawable.mint_2, R.drawable.mint_3, R.drawable.mint_4, R.drawable.mint_5, R.drawable.mint_6, R.drawable.mint_7, R.drawable.mint_8,}};
 
-    int[][] seed = {{R.drawable.rosemary_0, R.drawable.rosemary_1, R.drawable.rosemary_2, R.drawable.rosemary_3, R.drawable.rosemary_4, R.drawable.rosemary_5, R.drawable.rosemary_6, R.drawable.rosemary_7}, {14, 16, 18, 20}, {22, 0, 2, 4}};
+    int[][] time = {{R.drawable.time_6, R.drawable.time_8, R.drawable.time_10, R.drawable.time_12},
+            {R.drawable.time_14, R.drawable.time_16, R.drawable.time_18, R.drawable.time_20},
+            {R.drawable.time_22, R.drawable.time_0, R.drawable.time_2, R.drawable.time_4}};
+    int[] dialogBack = {R.drawable.dialog_back_0, R.drawable.dialog_back_1, R.drawable.dialog_back_2}, dialogSeedpack = {R.drawable.rosemary_pack, R.drawable.basil_pack, R.drawable.mint_pack};
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     LayoutInflater main_RecycleView_inflater;
     Context mcontext;
@@ -66,38 +71,66 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = main_RecycleView_inflater.inflate(R.layout.main_item_2, parent, false);
-
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        if (MainActivity.mainHabitID.get(position).equals("System CREATE!!!")) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        Map thisPositionHabitList = MainActivity.mainHabitList.get(position);
+        if (position == 0) {
             createField(holder);
         } else {
-            holder.title.setText(MainActivity.mainHabitList.get(position).get("habitName").toString());
+            holder.title.setText(thisPositionHabitList.get("habitName").toString());
+
+
             try {
-                holder.days.setText("天數 : " + calculateTheDay(MainActivity.mainHabitList.get(position).get("date").toString()));
+                holder.days.setText("天數 : " + calculateTheDay(thisPositionHabitList.get("date").toString()));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            int a = Integer.parseInt(MainActivity.mainHabitList.get(position).get("time").toString());
-            if (a == 22) {
-                holder.aptitude.setText("適性 : " + a + " ~ " + 0);
-            } else if (a >= 24) {
-                holder.aptitude.setText("適性 : " + (a - 24) + " ~ " + (a - 24));
+            int a = Integer.parseInt(thisPositionHabitList.get("time").toString());
+            //需檢查
+            if (a >= 22) {
+                holder.aptitude.setText("適性 : " + a + " ~ " + (a - 24));
             } else {
                 holder.aptitude.setText("適性 : " + a + " ~ " + (a + 2));
             }
+
             try {
-                grownUp(Integer.parseInt(calculateTheDay(MainActivity.mainHabitList.get(position).get("date").toString())), a, holder);
+                grownUp(Integer.parseInt(calculateTheDay(thisPositionHabitList.get("date").toString())), a, holder);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            if(!MainActivity.mainAlarms.get(a/2).contains(MainActivity.mainHabitList.get(position).get("habitName").toString())){
-                setAlarm(a/2);
-                MainActivity.mainAlarms.get(a/2).add(MainActivity.mainHabitList.get(position).get("habitName").toString());
+            if (Integer.parseInt(thisPositionHabitList.get("safety").toString()) == 0) {
+                holder.status.setText("需要水份");
+                holder.image.setClickable(true);
+                holder.image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MainActivity.mainHabitList.get(position).put("safety", 1);
+                        db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(position).get("habitName").toString()).set(MainActivity.mainHabitList.get(position))
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error adding document", e);
+                                    }
+                                });
+                        Log.d("position",position+"");
+                        main_farm.main_adapter.notifyItemChanged(position);
+                    }
+                });
+            } else {
+                holder.status.setText("穩定生長");
+                holder.image.setClickable(false);
             }
+
+
         }
     }
 
@@ -124,27 +157,33 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     public void grownUp(int d, int a, ViewHolder viewHolder) {
-        if (a >= 22) {
-            setItemImage(d, viewHolder, 3);
-        } else if (a >= 14) {
-            setItemImage(d, viewHolder, 2);
+        if (a >= 6 && a < 14) {
+            viewHolder.image.setImageResource(seed[0][d / 3]);
+        } else if (a >= 14 && a < 22) {
+            viewHolder.image.setImageResource(seed[1][d / 3]);
         } else {
-            setItemImage(d, viewHolder, 1);
+            viewHolder.image.setImageResource(seed[2][d / 3]);
         }
     }
 
-    private void setAlarm(int identifier) {
+    private void setAlarm(int identifier, String item_name) {
         Intent intent = new Intent(mcontext, AlarmReciver.class);
-        intent.putExtra("identify",identifier);
-
-        AlarmManager manager = (AlarmManager)mcontext.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, 1, intent, 0);
+        intent.putExtra("identify", identifier);
+        AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, 0);
         long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        calendar.add(Calendar.SECOND,10);
+
+        //測試完要套用
+        calendar.set(Calendar.HOUR_OF_DAY,identifier);
+        calendar.set(Calendar.MINUTE,0);
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MILLISECOND,0);
+        //calendar.add(Calendar.SECOND, 10);
+
         long selectTime = calendar.getTimeInMillis();
         if (systemTime > selectTime) {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
@@ -152,26 +191,62 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000*10, pendingIntent);
-        Log.d("setAlarm","done");
+        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000 * 60 * 60 * 24, pendingIntent);
+        Log.d("setAlarm", "set :" + calendar.getTimeInMillis() + " " + item_name);
     }
 
-    public void setItemImage(int d, ViewHolder viewHolder, int type) {
-        switch (type) {
-            case 1:
-                viewHolder.image.setImageResource(seed[0][(int) d / 3]);
-                break;
-            case 2:
-                viewHolder.image.setImageResource(seed[0][(int) d / 3]);
-                break;
-            case 3:
-                viewHolder.image.setImageResource(seed[0][(int) d / 3]);
-                break;
 
+    public String calculateTheDay(String date) throws ParseException {
+        Date last = new SimpleDateFormat("yyyy/MM/dd").parse(date);
+        Date now = new Date(System.currentTimeMillis());
+        long l = last.getTime() - now.getTime() > 0 ? last.getTime() - now.getTime() :
+                now.getTime() - last.getTime();
+        return Long.toString(l / (24 * 60 * 60 * 1000));
+    }
+
+    private void createFirstStep(String type, final int t) {
+        Toast.makeText(mcontext, type, Toast.LENGTH_SHORT).show();
+        final Dialog dialog = new Dialog(mcontext, R.style.dialogNoBg);
+        dialog.setContentView(R.layout.setting);
+        ImageView seedpack = dialog.findViewById(R.id.imageView3);
+        Button[] buttons = {dialog.findViewById(R.id.btn1), dialog.findViewById(R.id.btn2), dialog.findViewById(R.id.btn3), dialog.findViewById(R.id.btn4)};
+        dialog.show();
+        DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
+        android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
+        int width = dm2.widthPixels;
+        int height = dm2.heightPixels;
+        p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
+        p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
+        dialog.getWindow().setAttributes(p);
+        final EditText habitName = dialog.findViewById(R.id.habitName);
+
+        int timeInterval;
+        if (t >= 6 && t < 14) {
+            timeInterval = 0;
+        } else if (t >= 14 && t < 22) {
+            timeInterval = 1;
+        } else {
+            timeInterval = 2;
+        }
+        seedpack.setImageResource(dialogSeedpack[timeInterval]);
+        dialog.findViewById(R.id.dialog_background).setBackgroundResource(dialogBack[timeInterval]);
+        for (int i = 0; i < 4; i++) {
+            final int temp = i;
+            buttons[i].setBackgroundResource(time[timeInterval][i]);
+            buttons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (habitName.getText().toString().equals("")) {
+                        Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
+                    } else {
+                        createSecondStep(habitName.getText().toString().trim(), dialog, t + (temp * 2));
+                    }
+                }
+            });
         }
     }
 
-    public void createSecondStep(final String habitName, final Dialog dialog, final int t) {
+    private void createSecondStep(final String habitName, final Dialog dialog, final int t) {
         db.collection(MainActivity.user).document(habitName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -185,87 +260,41 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                         Date date = new Date(System.currentTimeMillis());
                         final Map<String, Object> habits = new HashMap<>();
                         habits.put("habitName", habitName);
-                        if (t >= 24) {
-                            habits.put("time", t - 24);
-                            //setAlarm(t-24);
-                        } else {
-                            habits.put("time", t);
-                            //setAlarm(t/2);
-                        }
+
                         habits.put("date", simpleDateFormat.format(date));
+                        habits.put("safety", 1);
+                        habits.put("position", MainActivity.mainHabitID.size());
+                        int tempTime;
+                        if (t >= 24) {
+                            tempTime = t - 24;
+                            habits.put("time", t - 24);
+                        } else {
+                            tempTime = t;
+                            habits.put("time", t);
+                        }
+                        setAlarm(tempTime / 2, habitName);
+
                         db.collection(MainActivity.user).document(habitName).set(habits)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         MainActivity.mainHabitID.add(habitName);
                                         MainActivity.mainHabitList.add(habits);
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                        Log.d("create2", "DocumentSnapshot successfully written!");
                                         main_farm.main_adapter.notifyDataSetChanged();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error adding document", e);
+                                        Log.w("create2", "Error adding document", e);
                                     }
                                 });
                         dialog.dismiss();
-
                     }
                 }
             }
         });
-    }
-
-    public String calculateTheDay(String date) throws ParseException {
-        Date last = new SimpleDateFormat("yyyy/MM/dd").parse(date);
-        Date now = new Date(System.currentTimeMillis());
-        long l = last.getTime() - now.getTime() > 0 ? last.getTime() - now.getTime() :
-                now.getTime() - last.getTime();
-        return Long.toString(l / (24 * 60 * 60 * 1000));
-    }
-
-    public void createFirstStep(String type, final int t) {
-        Toast.makeText(mcontext, type, Toast.LENGTH_SHORT).show();
-        final Dialog dialog = new Dialog(mcontext, R.style.dialogNoBg);
-        
-        dialog.setContentView(R.layout.setting);
-        Button [] buttons = {dialog.findViewById(R.id.btn1),dialog.findViewById(R.id.btn2),dialog.findViewById(R.id.btn3),dialog.findViewById(R.id.btn4)};
-        dialog.show();
-        DisplayMetrics dm2 = mcontext.getResources().getDisplayMetrics();
-        android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();  //獲取對話方塊當前的引數值
-        int width = dm2.widthPixels;
-        int height = dm2.heightPixels;
-        p.height = (int) (height * 0.8);   //高度設定為螢幕的0.3
-        p.width = (int) (width * 0.9);    //寬度設定為螢幕的0.5
-        dialog.getWindow().setAttributes(p);
-        final EditText habitName = dialog.findViewById(R.id.habitName);
-
-        if (t + 2 >= 24) {
-            int t2 = 0;
-            buttons[0].setText(t + " ~ " + t2);
-            buttons[1].setText(t2 + " ~ " + (t2 + 2));
-            buttons[2].setText(t2 + 2 + " ~ " + (t2 + 4));
-            buttons[3].setText(t2 + 4 + " ~ " + (t2 + 6));
-        } else {
-            buttons[0].setText(t + " ~ " + (t + 2));
-            buttons[1].setText(t + 2 + " ~ " + (t + 4));
-            buttons[2].setText(t + 4 + " ~ " + (t + 6));
-            buttons[3].setText(t + 6 + " ~ " + (t + 8));
-        }
-        for(int i =0;i<buttons.length;i++){
-            final int time = i;
-            buttons[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (habitName.getText().toString().equals("")) {
-                        Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
-                    } else {
-                        createSecondStep(habitName.getText().toString().trim(), dialog, t+(time*2));
-                    }
-                }
-            });
-        }
     }
 
     private void createField(ViewHolder holder) {

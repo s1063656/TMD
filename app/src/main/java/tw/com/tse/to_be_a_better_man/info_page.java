@@ -34,7 +34,7 @@ public class info_page extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), login.class);
                 login.standBy=true;
-                MainActivity.mainAlarms.clear();
+                //MainActivity.mainAlarms.clear();
                 MainActivity.mainHabitList.clear();
                 MainActivity.mainHabitID.clear();
                 NotificationManager manager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
