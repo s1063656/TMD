@@ -14,10 +14,12 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
     static String user;
     private Fragment main_farm;
     private info_page infoPage;
-
+    private history_page hisPage;
+    static String userName;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
@@ -46,13 +49,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main);
         createNotificationChanel();
         user = this.getIntent().getStringExtra("userID");
+        db.collection("users").document(user).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        userName = document.get("name").toString();
+                    }else{
+                        Log.d("info","null");
+                    }
+                } else {
+                    Log.d("info", "get failed with ", task.getException());
+                }
+            }
+        });
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
 
         startService();
         createField();
         init();
-
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
@@ -62,14 +84,9 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, infoPage).commitAllowingStateLoss();
     }
 
-    public void logout(View view) {
-        login.standBy = true;
-
-        mainHabitList.clear();
-        mainHabitID.clear();
-        Intent intent = new Intent(this, login.class);
-        startActivity(intent);
-        finish();
+    public void his(View view) {
+        hisPage = new history_page();
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, hisPage).commitAllowingStateLoss();
     }
 
     public void farm(View view) {
@@ -118,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -152,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000*60*60*24, pendingIntent);
+        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
         Log.d("setAlarm","done"+identifier);
     }
 }

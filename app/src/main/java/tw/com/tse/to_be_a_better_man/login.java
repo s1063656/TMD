@@ -98,7 +98,6 @@ public class login extends AppCompatActivity {
             Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");
         } else {
-
             if(isVaildEmailFormat(main_email.getText().toString().trim())) {
                 db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override

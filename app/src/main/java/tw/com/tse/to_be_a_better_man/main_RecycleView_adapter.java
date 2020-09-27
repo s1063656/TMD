@@ -170,7 +170,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         Intent intent = new Intent(mcontext, AlarmReciver.class);
         intent.putExtra("identify", identifier);
         AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, 0 );
         long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
@@ -191,7 +191,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, 1000 * 60 * 60 * 24, pendingIntent);
+        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
         Log.d("setAlarm", "set :" + calendar.getTimeInMillis() + " " + item_name);
     }
 
