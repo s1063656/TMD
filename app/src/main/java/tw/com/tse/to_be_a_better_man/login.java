@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -113,6 +114,8 @@ public class login extends AppCompatActivity {
                                     Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(login.this, MainActivity.class);
                                     intent.putExtra("userID", main_email.getText().toString().trim());
+                                    AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
                                     startActivity(intent);
                                     finish();
 

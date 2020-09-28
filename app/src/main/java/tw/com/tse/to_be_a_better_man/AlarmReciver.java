@@ -29,57 +29,59 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class AlarmReciver extends BroadcastReceiver {
     String[] arrayOfAlarmString = {"", "", "", "", "", "", "", "", "", "", "", ""};
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    int inInt ;
+    int identifier;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        inInt=intent.getIntExtra("ifentify",-1);
-        Log.d("intent extra", inInt + "");
-        if (inInt != -1) {
-            for (int i =1;i<MainActivity.mainHabitList.size();i++) {
-                    Log.d("check",i+"");
-                    if(Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString())==inInt) {
-                        arrayOfAlarmString[inInt / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
-                        MainActivity.mainHabitList.get(i).put("safety", 0);
-                        db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(i).get("habitName").toString()).set(MainActivity.mainHabitList.get(i))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error adding document", e);
-                                    }
-                                });
-                    }
+        identifier = intent.getIntExtra("identify", -1);
+        if (identifier != -1) {
+            Log.d("intent extra", identifier + "");
+            for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
+                Log.d("check", i + "");
+                if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) == identifier) {
+                    arrayOfAlarmString[identifier / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
+                    MainActivity.mainHabitList.get(i).put("safety", 0);
+                    db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(i).get("habitName").toString()).set(MainActivity.mainHabitList.get(i))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error adding document", e);
+                                }
+                            });
+                }
             }
 
             main_farm.main_adapter.notifyDataSetChanged();
-            Notification notification = new Notification.Builder(context, MainActivity.channels[inInt])
-                    .setSmallIcon(R.drawable.notification_icon_background)
+            Notification notification = new Notification.Builder(context, MainActivity.channels[identifier/2])
+                    .setSmallIcon(R.drawable.rosemary_7)
                     .setContentTitle("該來照顧一下你的香草囉")
-                    .setContentText(arrayOfAlarmString[inInt])
+                    .setContentText(arrayOfAlarmString[identifier/2])
                     .setAutoCancel(true)
                     .build();
-            manager.notify(inInt, notification);
-            setAlarm(inInt,context);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(new Intent(context, MyService.class));
+            manager.notify(identifier, notification);
+            setAlarm(identifier, context);
         } else {
-            context.startService(new Intent(context, MyService.class));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(new Intent(context, MyService.class));
+            } else {
+                context.startService(new Intent(context, MyService.class));
+            }
         }
 
     }
-    private void setAlarm(int identifier,Context context) {
+
+    private void setAlarm(int identifier, Context context) {
         Intent intent = new Intent(context, AlarmReciver.class);
         intent.putExtra("identify", identifier);
         AlarmManager manager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, identifier, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, identifier, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
@@ -91,7 +93,7 @@ public class AlarmReciver extends BroadcastReceiver {
         calendar.set(Calendar.MINUTE,0);
         calendar.set(Calendar.SECOND,0);
         calendar.set(Calendar.MILLISECOND,0);
-        //calendar.add(Calendar.SECOND, 10);
+        //calendar.add(Calendar.SECOND, 30);
 
         long selectTime = calendar.getTimeInMillis();
         if (systemTime > selectTime) {
@@ -100,7 +102,7 @@ public class AlarmReciver extends BroadcastReceiver {
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setExactAlarm", "set :" + identifier);
+        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
+        Log.d("setAlarmAtAlarmReceiver", "set ALARM num : " + time);
     }
 }

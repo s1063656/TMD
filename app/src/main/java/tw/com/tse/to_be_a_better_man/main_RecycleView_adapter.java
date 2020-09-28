@@ -167,10 +167,11 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     private void setAlarm(int identifier, String item_name) {
+        Log.d("SA","i'm here can u see me");
         Intent intent = new Intent(mcontext, AlarmReciver.class);
         intent.putExtra("identify", identifier);
         AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, 0 );
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, PendingIntent.FLAG_UPDATE_CURRENT );
         long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
@@ -191,8 +192,8 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setAlarm", "set :" + calendar.getTimeInMillis() + " " + item_name);
+        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+        Log.d("setAlarmAtRecycleView", "set :" + firstTime+ " " + item_name);
     }
 
 

@@ -12,12 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
+import java.util.HashMap;
+import java.util.Map;
+
 
 
 public class info_page extends Fragment {
@@ -45,7 +48,8 @@ public class info_page extends Fragment {
                 login.standBy=true;
                 MainActivity.mainHabitList.clear();
                 MainActivity.mainHabitID.clear();
-                NotificationManager manager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+                createField();
+                Toast.makeText(getActivity(),"登出",Toast.LENGTH_LONG).show();
                 for(int i=0;i<12;i++){
                     Intent alarmIntent  = new Intent(getActivity(), AlarmReciver.class);
                     intent.setAction("SomeAction");
@@ -61,6 +65,14 @@ public class info_page extends Fragment {
             }
         });
 
+    }
+    private void createField() {
+        if (!MainActivity.mainHabitID.contains("System CREATE!!!")) {
+            MainActivity.mainHabitID.add("System CREATE!!!");
+            Map<String, Object> habits = new HashMap<>();
+            habits.put("habitName", "System CREATE!!!");
+            MainActivity.mainHabitList.add(habits);
+        }
     }
 
 }

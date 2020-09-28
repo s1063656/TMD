@@ -9,6 +9,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     static String userName;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
+    //static int[] checkBeforeHand={0,0,0,0,0,0,0,0,0,0,0,0};
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
         "Channel 10~12.","Channel 12~14.","Channel 14~16.","Channel 16~18.","Channel 18~20.","Channel 20~22.","Channel 22~0."};
     @Override
@@ -67,14 +69,13 @@ public class MainActivity extends AppCompatActivity {
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
 
+        init();
+
+
         startService();
         createField();
-        init();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
@@ -118,27 +119,27 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            int p =1;
+                            //int p =1;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> habits = new HashMap<>();
                                 habits.putAll(document.getData());
                                 mainHabitList.add(habits);
                                 mainHabitID.add(document.getId());
-                                habits.put("position",p++);
-                                //mainAlarms.get(Integer.parseInt(document.get("time").toString())/2).add(habits);
+                                Log.d("num",Integer.parseInt(document.get("time").toString())/2+"");
+                                //checkBeforeHand[Integer.parseInt(document.get("time").toString())/2]=1;
+                                //habits.put("position",p++);
+                                setAlarm(Integer.parseInt(document.get("time").toString()));
                                 Log.d(TAG, document.getId() + " => " + document.getData());
-                                setAlarm(Integer.parseInt(document.get("time").toString())/2);
+
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+
+
 
     }
 
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AlarmReciver.class);
         intent.putExtra("identify",identifier);
         AlarmManager manager = (AlarmManager)this.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, identifier, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, identifier, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         long firstTime = SystemClock.elapsedRealtime();
         long systemTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
@@ -160,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MINUTE,0);
         calendar.set(Calendar.SECOND,0);
         calendar.set(Calendar.MILLISECOND,0);
-        //calendar.add(Calendar.SECOND,10);
 
         long selectTime = calendar.getTimeInMillis();
         if (systemTime > selectTime) {
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setAlarm","done"+identifier);
+        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
+        Log.d("setAlarm","ALARM num : "+time);
     }
 }
