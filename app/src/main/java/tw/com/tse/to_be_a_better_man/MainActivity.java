@@ -70,12 +70,14 @@ public class MainActivity extends AppCompatActivity {
         mainHabitID = new ArrayList();
 
         init();
-
-
         startService();
         createField();
 
-
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
