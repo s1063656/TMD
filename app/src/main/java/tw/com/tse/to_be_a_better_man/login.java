@@ -3,12 +3,15 @@ package tw.com.tse.to_be_a_better_man;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,17 +38,21 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.ContentValues.TAG;
+import static android.graphics.Typeface.BOLD;
+
 public class login extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Context context = this;
     String userid,password;
     SharedPreferences pref ;
     EditText main_email,main_password;
+    TextView title ;
+    ConstraintLayout loginBack;
     static Boolean standBy = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_2);
         init();
@@ -59,44 +67,26 @@ public class login extends AppCompatActivity {
 
         main_email = (EditText) findViewById(R.id.login_id);
         main_password = (EditText) findViewById(R.id.login_password);
+        title = (TextView) findViewById(R.id.loginTitle);
+        title.setText("香草習慣");
+        title.setTextSize(48f);
+        title.setTextColor(Color.rgb(0, 0, 0));
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        loginBack = (ConstraintLayout) findViewById(R.id.loginBack);
+        loginBack.setBackgroundResource(R.drawable.login_background);
         if(!userid.equals("")&&!password.equals("")) {
             main_email.setText(userid);
             main_password.setText(password);
             if (!standBy) {
-                if (isVaildEmailFormat(main_email.getText().toString().trim())) {
-                    db.collection("users").document(main_email.getText().toString().trim()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    if (main_password.getText().toString().trim().equals(document.get("password").toString())) {
-                                        pref.edit()
-                                                .putString("USERID", main_email.getText().toString().trim())
-                                                .putString("PASSWORD", main_password.getText().toString().trim())
-                                                .apply();
-                                        Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(login.this, MainActivity.class);
-                                        intent.putExtra("userID", main_email.getText().toString().trim());
-                                        startActivity(intent);
-                                        finish();
-                                    } else {
-                                        Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            } else {
-                                Log.d("LOGIN", "get failed with ", task.getException());
-                            }
-                        }
-                    });
-                }
+                login(null);
             }
         }
     }
 
     public void login(View view) {
+
         if (main_email.getText().toString().trim().equals("")|| main_password.getText().toString().trim().equals("")) {
-            Toast.makeText(this,"帳號或密碼不能為空值",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"帳號或密碼未輸入",Toast.LENGTH_SHORT).show();
             Log.d("LOGIN", "帳號或密碼未輸入");
         } else {
             if(isVaildEmailFormat(main_email.getText().toString().trim())) {
@@ -111,21 +101,21 @@ public class login extends AppCompatActivity {
                                             .putString("USERID",main_email.getText().toString().trim())
                                             .putString("PASSWORD",main_password.getText().toString().trim())
                                             .apply();
-                                    Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
+
                                     Intent intent = new Intent(login.this, MainActivity.class);
                                     intent.putExtra("userID", main_email.getText().toString().trim());
-                                    AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
+                                    intent.putExtra("userName",document.get("name").toString());
+                                    Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
+                                    Log.d("LOGIN","登入成功");
                                     startActivity(intent);
                                     finish();
 
                                 } else {
-                                    Log.d("login","fail");
+                                    Log.d("LOGIN","密碼錯誤");
                                     Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
                                 }
                             }else{
                                 Toast.makeText(context,"請檢查輸入的帳號密碼是否有誤\n並確實註冊帳號密碼",Toast.LENGTH_LONG).show();
-                                Log.d("login","login???");
                             }
                         } else {
                             Log.d("LOGIN", "get failed with ", task.getException());
@@ -136,7 +126,6 @@ public class login extends AppCompatActivity {
                 Toast.makeText(context, "信箱格式錯誤", Toast.LENGTH_SHORT).show();
                 Log.d("LOGIN", "信箱格式錯誤");
             }
-
         }
     }
 

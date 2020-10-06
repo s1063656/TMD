@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+
 import static android.content.ContentValues.TAG;
 import static android.content.Context.ALARM_SERVICE;
 
@@ -81,8 +82,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             createField(holder);
         } else {
             holder.title.setText(thisPositionHabitList.get("habitName").toString());
-
-
             try {
                 holder.days.setText("天數 : " + calculateTheDay(thisPositionHabitList.get("date").toString()));
             } catch (ParseException e) {
@@ -129,13 +128,12 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 holder.status.setText("穩定生長");
                 holder.image.setClickable(false);
             }
-
-
         }
     }
 
     @Override
     public int getItemCount() {
+
         return MainActivity.mainHabitID.size();
     }
 
@@ -167,7 +165,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     private void setAlarm(int identifier, String item_name) {
-        Log.d("SA","i'm here can u see me");
+
         Intent intent = new Intent(mcontext, AlarmReciver.class);
         intent.putExtra("identify", identifier);
         AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
@@ -192,7 +190,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
         long time = selectTime - systemTime;
         firstTime += time;
-        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
         Log.d("setAlarmAtRecycleView", "set :" + firstTime+ " " + item_name);
     }
 

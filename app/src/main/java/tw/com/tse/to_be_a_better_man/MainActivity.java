@@ -9,13 +9,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     static String userName;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
-    //static int[] checkBeforeHand={0,0,0,0,0,0,0,0,0,0,0,0};
+    static boolean[] checkBeforeHand={false,false,false,false,false,false,false,false,false,false,false,false};
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
         "Channel 10~12.","Channel 12~14.","Channel 14~16.","Channel 16~18.","Channel 18~20.","Channel 20~22.","Channel 22~0."};
     @Override
@@ -51,33 +49,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main);
         createNotificationChanel();
         user = this.getIntent().getStringExtra("userID");
-        db.collection("users").document(user).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        userName = document.get("name").toString();
-                    }else{
-                        Log.d("info","null");
-                    }
-                } else {
-                    Log.d("info", "get failed with ", task.getException());
-                }
-            }
-        });
+        userName=this.getIntent().getStringExtra("userName");
+        Log.d("mainActivity",""+userName);
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
-
         init();
         startService();
         createField();
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
@@ -121,28 +100,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            //int p =1;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> habits = new HashMap<>();
                                 habits.putAll(document.getData());
                                 mainHabitList.add(habits);
                                 mainHabitID.add(document.getId());
                                 Log.d("num",Integer.parseInt(document.get("time").toString())/2+"");
-                                //checkBeforeHand[Integer.parseInt(document.get("time").toString())/2]=1;
-                                //habits.put("position",p++);
-                                setAlarm(Integer.parseInt(document.get("time").toString()));
                                 Log.d(TAG, document.getId() + " => " + document.getData());
-
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
-
-
-
-
     }
 
     private void startService() {
