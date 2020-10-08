@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -57,9 +58,9 @@ public class AlarmReciver extends BroadcastReceiver {
                             });
                 }
             }
-
             main_farm.main_adapter.notifyDataSetChanged();
-            Notification notification = new Notification.Builder(context, MainActivity.channels[identifier/2])
+            //NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.channels[identifier/2]);
+            Notification notification = new NotificationCompat.Builder(context, MainActivity.channels[identifier/2])
                     .setSmallIcon(R.drawable.rosemary_7)
                     .setContentTitle("該來照顧一下你的香草囉")
                     .setContentText(arrayOfAlarmString[identifier/2])

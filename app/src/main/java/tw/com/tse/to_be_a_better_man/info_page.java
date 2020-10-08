@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import java.util.HashMap;
 import java.util.Map;
 
+import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
+import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
 
 public class info_page extends Fragment {
@@ -44,7 +46,7 @@ public class info_page extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), login.class);
+                /*Intent intent = new Intent(getActivity(), login.class);
                 login.standBy=true;
                 MainActivity.mainHabitList.clear();
                 MainActivity.mainHabitID.clear();
@@ -61,7 +63,15 @@ public class info_page extends Fragment {
                     }
                 }
                 startActivity(intent);
-                getActivity().finish();
+                getActivity().finish();*/
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyData data = new MyData("test", "1", "2", "3");
+                        DataBase.getInstance(getContext()).getDataUao().insertData(data);
+                        Log.d("room","ok");
+                    }
+                }).start();
             }
         });
 

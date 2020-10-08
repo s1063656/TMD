@@ -15,10 +15,10 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -40,13 +40,14 @@ public class MainActivity extends AppCompatActivity {
     static String userName;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
-    static boolean[] checkBeforeHand={false,false,false,false,false,false,false,false,false,false,false,false};
+
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
         "Channel 10~12.","Channel 12~14.","Channel 14~16.","Channel 16~18.","Channel 18~20.","Channel 20~22.","Channel 22~0."};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        Stetho.initializeWithDefaults(this);
         createNotificationChanel();
         user = this.getIntent().getStringExtra("userID");
         userName=this.getIntent().getStringExtra("userName");
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         init();
         startService();
         createField();
-
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
