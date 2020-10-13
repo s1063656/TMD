@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 public class history_page extends Fragment {
-    RecyclerView his_RECV;
-    static main_RecycleView_adapter his_adapter;
+    RecyclerView history_RecycleView;
+    static history_adapter his_adapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -25,15 +25,11 @@ public class history_page extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        his_RECV = (RecyclerView) view.findViewById(R.id.his_RECV);
-        his_RECV.setItemViewCacheSize(100);
-        his_adapter = new main_RecycleView_adapter(getActivity());
+        history_RecycleView = (RecyclerView) view.findViewById(R.id.history_RecycleView);
+        history_RecycleView.setItemViewCacheSize(100);
+        his_adapter = new history_adapter(getActivity());
         GridLayoutManager main_gridLayoutManager = new GridLayoutManager(getActivity(),4,GridLayoutManager.VERTICAL,false);
-        his_RECV.setLayoutManager(main_gridLayoutManager);
-        his_RECV.setAdapter(his_adapter);
-
-
+        history_RecycleView.setLayoutManager(main_gridLayoutManager);
+        history_RecycleView.setAdapter(his_adapter);
     }
-
 }

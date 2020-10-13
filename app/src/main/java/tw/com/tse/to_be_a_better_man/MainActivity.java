@@ -26,21 +26,25 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
+import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     static String user;
+    static List<MyData> HBlist;
     private Fragment main_farm;
     private info_page infoPage;
     private history_page hisPage;
     static String userName;
     static ArrayList<Map> mainHabitList;
     static ArrayList<String> mainHabitID;
-
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
         "Channel 10~12.","Channel 12~14.","Channel 14~16.","Channel 16~18.","Channel 18~20.","Channel 20~22.","Channel 22~0."};
     @Override
@@ -54,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d("mainActivity",""+userName);
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
+        createField();
         init();
         startService();
-        createField();
         main_farm = new main_farm();
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, main_farm).commitAllowingStateLoss();
     }
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createField() {
-        if (!mainHabitID.contains("System CREATE!!!")) {
+        if (!mainHabitID.contains("System CREATE!!!")){
             mainHabitID.add("System CREATE!!!");
             Map<String, Object> habits = new HashMap<>();
             habits.put("habitName", "System CREATE!!!");
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void init() {
-        db.collection(user)
+        /*db.collection(user)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -112,36 +116,30 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
-                });
+                });*/
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HBlist=DataBase.getInstance(getApplicationContext()).getDataUao().displayAll( );
+                for(int i =0;i<HBlist.size();i++){
+                    Log.d("displayAll",HBlist.get(i).getName());
+                    Map<String, Object> habits = new HashMap<>();
+                    habits.put("habitName",HBlist.get(i).getName());
+                    habits.put("date",HBlist.get(i).getDate());
+                    habits.put("time",HBlist.get(i).getTime());
+
+                    habits.put("status",HBlist.get(i).getStatus());
+
+                    mainHabitList.add(habits);
+                    Log.d("displayB",mainHabitList.get(i).get("habitName").toString());
+                }
+            }
+        }).start();
     }
 
     private void startService() {
         Intent intent = new Intent(MainActivity.this, MyService.class);
         startService(intent);
     }
-    private void setAlarm(int identifier) {
-        Intent intent = new Intent(this, AlarmReciver.class);
-        intent.putExtra("identify",identifier);
-        AlarmManager manager = (AlarmManager)this.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, identifier, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        long firstTime = SystemClock.elapsedRealtime();
-        long systemTime = System.currentTimeMillis();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        calendar.set(Calendar.HOUR_OF_DAY,identifier);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-        calendar.set(Calendar.MILLISECOND,0);
 
-        long selectTime = calendar.getTimeInMillis();
-        if (systemTime > selectTime) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            selectTime = calendar.getTimeInMillis();
-        }
-        long time = selectTime - systemTime;
-        firstTime += time;
-        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setAlarm","ALARM num : "+time);
-    }
 }

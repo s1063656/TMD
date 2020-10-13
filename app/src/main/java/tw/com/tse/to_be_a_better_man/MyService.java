@@ -50,7 +50,7 @@ public class MyService extends Service {
         Intent i = new Intent(this,AlarmReciver.class);
         i.putExtra("identify",-1);
         PendingIntent pi = PendingIntent.getBroadcast(this, -1, i, 0);
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
         return START_REDELIVER_INTENT;
     }
 

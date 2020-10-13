@@ -17,22 +17,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
-import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
-
 
 public class info_page extends Fragment {
-    Button logout;
+    Button logout,sync;
     TextView name,email;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.info_page,container,false);
         logout = (Button) view.findViewById(R.id.button2);
+        sync = view.findViewById(R.id.info_sync);
         name = view.findViewById(R.id.info_name);
         email = view.findViewById(R.id.info_email);
         return view;
@@ -43,10 +40,17 @@ public class info_page extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         name.setText(MainActivity.userName);
         email.setText(MainActivity.user);
+        sync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(),login.class);
+                getActivity().startActivity(intent);
+            }
+        });
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent intent = new Intent(getActivity(), login.class);
+                Intent intent = new Intent(getActivity(), login.class);
                 login.standBy=true;
                 MainActivity.mainHabitList.clear();
                 MainActivity.mainHabitID.clear();
@@ -63,18 +67,17 @@ public class info_page extends Fragment {
                     }
                 }
                 startActivity(intent);
-                getActivity().finish();*/
+                getActivity().finish();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        MyData data = new MyData("test", "1", "2", "3");
-                        DataBase.getInstance(getContext()).getDataUao().insertData(data);
+                        DataBase.getInstance(getContext()).getDataUao().deleteAll();
+                        DbHelper.resetAutoIncrement(new DbHelper(getContext()),"MyTable");
                         Log.d("room","ok");
                     }
                 }).start();
             }
         });
-
     }
     private void createField() {
         if (!MainActivity.mainHabitID.contains("System CREATE!!!")) {
@@ -84,6 +87,7 @@ public class info_page extends Fragment {
             MainActivity.mainHabitList.add(habits);
         }
     }
+
 
 }
 

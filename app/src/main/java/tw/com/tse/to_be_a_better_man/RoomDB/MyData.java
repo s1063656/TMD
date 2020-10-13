@@ -9,18 +9,18 @@ public class MyData {
     @PrimaryKey(autoGenerate = true)//設置是否使ID自動累加
     private int id;
     private String name;
-    private String time;
+    private int time;
     private String date;
-    private String status;
+    private int status;
 
-    public MyData(String name, String time, String date, String status) {
+    public MyData(String name, int time, String date, int status) {
         this.name = name;
         this.time = time;
         this.date = date;
         this.status = status;
     }
     @Ignore//如果要使用多形的建構子，必須加入@Ignore
-    public MyData(int id,String name, String time, String date, String status) {
+    public MyData(int id,String name, int time, String date, int status) {
         this.id = id;
         this.name = name;
         this.time = time;
@@ -44,12 +44,12 @@ public class MyData {
         this.name = name;
     }
 
-    public String getTime() {
+    public int getTime() {
         return time;
     }
 
-    public void setPhone(String date) {
-        this.date = date;
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public String getDate() {
@@ -60,11 +60,11 @@ public class MyData {
         this.date = date;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }

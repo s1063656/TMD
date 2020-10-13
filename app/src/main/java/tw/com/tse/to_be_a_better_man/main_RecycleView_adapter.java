@@ -1,23 +1,20 @@
 package tw.com.tse.to_be_a_better_man;
 
-import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.WindowManager;
+
 import android.content.Context;
-import android.media.Image;
+
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,14 +23,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -41,13 +32,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
 
-import static android.content.ContentValues.TAG;
+import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
+import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
+
+
 import static android.content.Context.ALARM_SERVICE;
+import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
 
 public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleView_adapter.ViewHolder> {
     int[][] seed = {
@@ -77,7 +73,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        Map thisPositionHabitList = MainActivity.mainHabitList.get(position);
+        Map thisPositionHabitList = mainHabitList.get(position);
         if (position == 0) {
             createField(holder);
         } else {
@@ -100,14 +96,14 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            if (Integer.parseInt(thisPositionHabitList.get("safety").toString()) == 0) {
+            if (thisPositionHabitList.get("status").toString().equals("0")) {
                 holder.status.setText("需要水份");
                 holder.image.setClickable(true);
                 holder.image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MainActivity.mainHabitList.get(position).put("safety", 1);
-                        db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(position).get("habitName").toString()).set(MainActivity.mainHabitList.get(position))
+                        mainHabitList.get(position).put("status", 1);
+                        /*db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(position).get("habitName").toString()).set(MainActivity.mainHabitList.get(position))
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -120,7 +116,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                         Log.w(TAG, "Error adding document", e);
                                     }
                                 });
-                        Log.d("position",position+"");
+                        Log.d("position",position+"");*/
                         main_farm.main_adapter.notifyItemChanged(position);
                     }
                 });
@@ -133,8 +129,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
 
     @Override
     public int getItemCount() {
-
-        return MainActivity.mainHabitID.size();
+        return mainHabitList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -246,7 +241,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     private void createSecondStep(final String habitName, final Dialog dialog, final int t) {
-        db.collection(MainActivity.user).document(habitName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        /*db.collection(MainActivity.user).document(habitName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -254,26 +249,37 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                     if (document.exists()) {
                         Toast.makeText(mcontext, "習慣已存在於資料庫", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "新增失敗,習慣已存在");
-                    } else {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-                        Date date = new Date(System.currentTimeMillis());
-                        final Map<String, Object> habits = new HashMap<>();
+                    } else {*/
+                        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+                        final Date date = new Date(System.currentTimeMillis());
+                        /*final Map<String, Object> habits = new HashMap<>();
                         habits.put("habitName", habitName);
-
                         habits.put("date", simpleDateFormat.format(date));
                         habits.put("safety", 1);
-                        habits.put("position", MainActivity.mainHabitID.size());
-                        int tempTime;
+                        habits.put("position", MainActivity.mainHabitID.size());*/
+                        final int tempTime;
                         if (t >= 24) {
                             tempTime = t - 24;
-                            habits.put("time", t - 24);
                         } else {
                             tempTime = t;
-                            habits.put("time", t);
                         }
-                        setAlarm(tempTime / 2, habitName);
+                        //habits.put("time", tempTime);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Map<String, Object> habits = new HashMap<>();
+                                habits.put("habitName",habitName);
+                                habits.put("date",simpleDateFormat.format(date));
+                                habits.put("time",tempTime);
+                                habits.put("status",1);
+                                //habits.put("position",getSize());
+                                MainActivity.mainHabitList.add(habits);
+                                insertData(new MyData(habitName,tempTime,simpleDateFormat.format(date),1));
 
-                        db.collection(MainActivity.user).document(habitName).set(habits)
+                            }
+                        }).start();
+                        setAlarm(tempTime, habitName);
+                        /*db.collection(MainActivity.user).document(habitName).set(habits)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -288,14 +294,17 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                     public void onFailure(@NonNull Exception e) {
                                         Log.w("create2", "Error adding document", e);
                                     }
-                                });
+                                });*/
                         dialog.dismiss();
+                        notifyDataSetChanged();
                     }
-                }
-            }
-        });
+                //}
+            //}
+        //});
+    //}
+    private int getSize(){
+        return DataBase.getInstance(mcontext).getDataUao().displayAll().size();
     }
-
     private void createField(ViewHolder holder) {
         holder.image.setImageResource(R.drawable.ic_empty_item);
         holder.title.setText("選擇屬於你的種子");
@@ -331,5 +340,9 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             }
         });
 
+    }
+    private void insertData(MyData myData){
+        DataBase.getInstance(mcontext).getDataUao().insertData(myData);
+        Log.d("sqlite","insert "+myData.getName());
     }
 }

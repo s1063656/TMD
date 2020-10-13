@@ -42,7 +42,7 @@ public interface DataUao {
 
     /**複雜(?)更新資料的方法*/
     @Query("UPDATE "+tableName+" SET name = :name,time=:time,date=:date,status = :status WHERE id = :id" )
-    void updateData(int id,String name,String time,String date,String status);
+    void updateData(int id,String name,int time,String date,int status);
 
     /**=======================================================================================*/
     /**簡單刪除資料的方法*/
@@ -52,5 +52,9 @@ public interface DataUao {
     /**複雜(?)刪除資料的方法*/
     @Query("DELETE  FROM " + tableName + " WHERE id = :id")
     void deleteData(int id);
+
+    @Query("DELETE FROM "+tableName)
+    void deleteAll();
+
 
 }

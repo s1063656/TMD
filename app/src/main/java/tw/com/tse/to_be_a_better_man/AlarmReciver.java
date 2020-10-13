@@ -43,7 +43,7 @@ public class AlarmReciver extends BroadcastReceiver {
                 if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) == identifier) {
                     arrayOfAlarmString[identifier / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
                     MainActivity.mainHabitList.get(i).put("safety", 0);
-                    db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(i).get("habitName").toString()).set(MainActivity.mainHabitList.get(i))
+                    /*db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(i).get("habitName").toString()).set(MainActivity.mainHabitList.get(i))
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -55,7 +55,7 @@ public class AlarmReciver extends BroadcastReceiver {
                                 public void onFailure(@NonNull Exception e) {
                                     Log.w(TAG, "Error adding document", e);
                                 }
-                            });
+                            });*/
                 }
             }
             main_farm.main_adapter.notifyDataSetChanged();
@@ -69,14 +69,33 @@ public class AlarmReciver extends BroadcastReceiver {
             manager.notify(identifier, notification);
             setAlarm(identifier, context);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(new Intent(context, MyService.class));
-            } else {
-                context.startService(new Intent(context, MyService.class));
+            for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
+                Log.d("check", i + "");
+                    arrayOfAlarmString[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
+                    MainActivity.mainHabitList.get(i).put("safety", 0);
+                    /*db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(i).get("habitName").toString()).set(MainActivity.mainHabitList.get(i))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error adding document", e);
+                                }
+                            });*/
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(new Intent(context, MyService.class));
+                } else {
+                    context.startService(new Intent(context, MyService.class));
+                }
             }
         }
 
-    }
+    
 
     private void setAlarm(int identifier, Context context) {
         Intent intent = new Intent(context, AlarmReciver.class);
