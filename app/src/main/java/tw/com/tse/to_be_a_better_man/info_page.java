@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
 
+import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
+
 public class info_page extends Fragment {
     Button logout,sync;
     TextView name,email;
@@ -71,7 +73,9 @@ public class info_page extends Fragment {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+
                         DataBase.getInstance(getContext()).getDataUao().deleteAll();
+
                         DbHelper.resetAutoIncrement(new DbHelper(getContext()),"MyTable");
                         Log.d("room","ok");
                     }

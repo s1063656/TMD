@@ -2,14 +2,11 @@ package tw.com.tse.to_be_a_better_man.RoomDB;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {MyData.class},version = 2,exportSchema = true)//資料綁定的Getter-Setter,資料庫版本,是否將資料導出至文件
+@Database(entities = {MyData.class},version = 3,exportSchema = true)//資料綁定的Getter-Setter,資料庫版本,是否將資料導出至文件
     public abstract class DataBase extends RoomDatabase {
         public static final String DB_NAME = "RecordData.db";//資料庫名稱
         private static volatile DataBase instance;

@@ -127,12 +127,11 @@ public class MainActivity extends AppCompatActivity {
                     habits.put("habitName",HBlist.get(i).getName());
                     habits.put("date",HBlist.get(i).getDate());
                     habits.put("time",HBlist.get(i).getTime());
-
                     habits.put("status",HBlist.get(i).getStatus());
-
                     mainHabitList.add(habits);
                     Log.d("displayB",mainHabitList.get(i).get("habitName").toString());
                 }
+                
             }
         }).start();
     }

@@ -53,7 +53,7 @@ public interface DataUao {
     @Query("DELETE  FROM " + tableName + " WHERE id = :id")
     void deleteData(int id);
 
-    @Query("DELETE FROM "+tableName)
+    @Query("DELETE FROM " + tableName)
     void deleteAll();
 
 
