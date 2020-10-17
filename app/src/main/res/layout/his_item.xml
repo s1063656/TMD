@@ -4,18 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_gravity="center"
-    >
+    android:layout_gravity="center">
 
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/historyTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/historyitem_wood" />
+
+        android:textSize="18dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:background="@drawable/history_wood"/>
+
+
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/hisItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/historyitem_empty" />

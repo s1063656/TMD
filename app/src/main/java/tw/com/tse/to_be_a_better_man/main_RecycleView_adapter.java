@@ -55,7 +55,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             {R.drawable.time_14, R.drawable.time_16, R.drawable.time_18, R.drawable.time_20},
             {R.drawable.time_22, R.drawable.time_0, R.drawable.time_2, R.drawable.time_4}};
     int[] dialogBack = {R.drawable.dialog_back_0, R.drawable.dialog_back_1, R.drawable.dialog_back_2}, dialogSeedpack = {R.drawable.rosemary_pack, R.drawable.basil_pack, R.drawable.mint_pack};
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     LayoutInflater main_RecycleView_inflater;
     Context mcontext;
 
@@ -86,7 +86,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
             int a = Integer.parseInt(thisPositionHabitList.get("time").toString());
             //需檢查
             if (a >= 22) {
-                holder.aptitude.setText("適性 : " + a + " ~ " + (a - 24));
+                holder.aptitude.setText("適性 : " + a + " ~ " + (a - 22));
             } else {
                 holder.aptitude.setText("適性 : " + a + " ~ " + (a + 2));
             }
@@ -102,21 +102,18 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 holder.image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mainHabitList.get(position).put("status", 1);
-                        /*db.collection(MainActivity.user).document(MainActivity.mainHabitList.get(position).get("habitName").toString()).set(MainActivity.mainHabitList.get(position))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error adding document", e);
-                                    }
-                                });
-                        Log.d("position",position+"");*/
+                        MainActivity.mainHabitList.get(position).put("status", 1);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                final Map<String, Object> habit = mainHabitList.get(position);
+                                MyData myData = new MyData(habit.get("habitName").toString(),
+                                        Integer.parseInt(habit.get("time").toString()),
+                                        habit.get("date").toString(),
+                                        Integer.parseInt(habit.get("status").toString()));
+                                DataBase.getInstance(mcontext).getDataUao().updateData(myData);
+                            }
+                        }).start();
                         main_farm.main_adapter.notifyItemChanged(position);
                     }
                 });
@@ -124,7 +121,9 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 holder.status.setText("穩定生長");
                 holder.image.setClickable(false);
             }
+
         }
+
     }
 
     @Override
@@ -159,7 +158,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
     }
 
-    private void setAlarm(int identifier, String item_name) {
+    /*private void setAlarm(int identifier, String item_name) {
 
         Intent intent = new Intent(mcontext, AlarmReciver.class);
         intent.putExtra("identify", identifier);
@@ -187,7 +186,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         firstTime += time;
         manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
         Log.d("setAlarmAtRecycleView", "set :" + firstTime+ " " + item_name);
-    }
+    }*/
 
 
     public String calculateTheDay(String date) throws ParseException {
@@ -273,12 +272,13 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                                 habits.put("time",tempTime);
                                 habits.put("status",1);
                                 //habits.put("position",getSize());
+                                MainActivity.mainHabitID.add(habitName);
                                 MainActivity.mainHabitList.add(habits);
                                 insertData(new MyData(habitName,tempTime,simpleDateFormat.format(date),1));
 
                             }
                         }).start();
-                        setAlarm(tempTime, habitName);
+                        //setAlarm(tempTime, habitName);
                         /*db.collection(MainActivity.user).document(habitName).set(habits)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

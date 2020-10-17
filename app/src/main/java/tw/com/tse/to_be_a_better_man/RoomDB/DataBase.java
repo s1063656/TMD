@@ -16,8 +16,6 @@ import androidx.room.RoomDatabase;
             }
             return instance;
         }
-
-
         private static DataBase create(final Context context){
             return Room.databaseBuilder(context,DataBase.class,DB_NAME).fallbackToDestructiveMigration().build();
         }

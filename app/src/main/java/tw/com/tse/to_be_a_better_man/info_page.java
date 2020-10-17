@@ -1,7 +1,7 @@
 package tw.com.tse.to_be_a_better_man;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -20,8 +20,6 @@ import androidx.fragment.app.Fragment;
 import java.util.HashMap;
 import java.util.Map;
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
-
-import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
 
 public class info_page extends Fragment {
     Button logout,sync;

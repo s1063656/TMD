@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private info_page infoPage;
     private history_page hisPage;
     static String userName;
-    static ArrayList<Map> mainHabitList;
+    static ArrayList<Map> mainHabitList,historyList;
     static ArrayList<String> mainHabitID;
     static String [] channels = {"Channel 0~2.","Channel 2~4.","Channel 4~6.","Channel 6~8.","Channel 8~10.",
         "Channel 10~12.","Channel 12~14.","Channel 14~16.","Channel 16~18.","Channel 18~20.","Channel 20~22.","Channel 22~0."};
@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("mainActivity",""+userName);
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();
+        historyList = new ArrayList();
         createField();
         init();
         startService();
@@ -98,38 +99,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void init() {
-        /*db.collection(user)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Map<String, Object> habits = new HashMap<>();
-                                habits.putAll(document.getData());
-                                mainHabitList.add(habits);
-                                mainHabitID.add(document.getId());
-                                Log.d("num",Integer.parseInt(document.get("time").toString())/2+"");
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });*/
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HBlist=DataBase.getInstance(getApplicationContext()).getDataUao().displayAll( );
                 for(int i =0;i<HBlist.size();i++){
-                    Log.d("displayAll",HBlist.get(i).getName());
-                    Map<String, Object> habits = new HashMap<>();
-                    habits.put("habitName",HBlist.get(i).getName());
-                    habits.put("date",HBlist.get(i).getDate());
-                    habits.put("time",HBlist.get(i).getTime());
-                    habits.put("status",HBlist.get(i).getStatus());
-                    mainHabitList.add(habits);
-                    Log.d("displayB",mainHabitList.get(i).get("habitName").toString());
+                    if(HBlist.get(i).getStatus()!=-1) {
+                        Log.d("displayAll", HBlist.get(i).getName());
+                        Map<String, Object> habit = new HashMap<>();
+                        habit.put("habitName", HBlist.get(i).getName());
+                        habit.put("date", HBlist.get(i).getDate());
+                        habit.put("time", HBlist.get(i).getTime());
+                        habit.put("status", HBlist.get(i).getStatus());
+                        mainHabitList.add(habit);
+                        Log.d("habitList",mainHabitList.get(mainHabitList.size()-1).get("habitName").toString() );
+                    }else{
+                        Map<String, Object> habit = new HashMap<>();
+                        habit.put("habitName", HBlist.get(i).getName());
+                        habit.put("date", HBlist.get(i).getDate());
+                        habit.put("time", HBlist.get(i).getTime());
+                        habit.put("status", HBlist.get(i).getStatus());
+                        historyList.add(habit);
+                        Log.d("historyList",historyList.get(historyList.size()-1).get("habitName").toString() );
+                    }
                 }
                 
             }

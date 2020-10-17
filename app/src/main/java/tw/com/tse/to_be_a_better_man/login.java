@@ -135,7 +135,7 @@ public class login extends AppCompatActivity {
                                                 public void run() {
                                                     final List<MyData> myDataList = DataBase.getInstance(context).getDataUao().displayAll();
                                                     final ArrayList<String> fireData = new ArrayList();
-                                                    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+
                                                     db.collection(userid)
                                                             .get()
                                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -246,10 +246,7 @@ public class login extends AppCompatActivity {
                                                                                     habit.get("date").toString(),
                                                                                     Integer.parseInt(habit.get("status").toString()));
                                                                             DataBase.getInstance(context).getDataUao().insertData(myData);
-
-
                                                                         }
-                                                                        //DataBase.close(context);
                                                                     }
                                                                 });
                                                                 B.start();
@@ -282,26 +279,6 @@ public class login extends AppCompatActivity {
                                     Log.d("LOGIN", "密碼錯誤");
                                     Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
                                 }
-
-
-                                /*
-                                if (main_password.getText().toString().trim().equals(document.get("password").toString())) {
-                                    pref.edit()
-                                            .putString("USERID",main_email.getText().toString().trim())
-                                            .putString("PASSWORD",main_password.getText().toString().trim())
-                                            .apply();
-                                    Intent intent = new Intent(login.this, MainActivity.class);
-                                    intent.putExtra("userID", main_email.getText().toString().trim());
-                                    intent.putExtra("userName",document.get("name").toString());
-                                    Toast.makeText(context, "登入成功", Toast.LENGTH_SHORT).show();
-                                    Log.d("LOGIN","登入成功");
-                                    startActivity(intent);
-                                    finish();
-
-                                } else {
-                                    Log.d("LOGIN","密碼錯誤");
-                                    Toast.makeText(context, "密碼錯誤", Toast.LENGTH_SHORT).show();
-                                }*/
                             } else {
                                 Toast.makeText(context, "請檢查輸入的帳號密碼是否有誤\n並確實註冊帳號密碼", Toast.LENGTH_LONG).show();
                             }
