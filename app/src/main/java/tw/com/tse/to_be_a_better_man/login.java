@@ -161,7 +161,7 @@ public class login extends AppCompatActivity {
                                                                             habits.put("habitName", myDataList.get(i).getName());
                                                                             habits.put("date", myDataList.get(i).getDate());
                                                                             habits.put("time", myDataList.get(i).getTime());
-                                                                            habits.put("status", 1);
+                                                                            habits.put("status", myDataList.get(i).getStatus());
                                                                             db.collection(userid).document(myDataList.get(i).getName()).set(habits)
                                                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                         @Override
@@ -208,7 +208,6 @@ public class login extends AppCompatActivity {
                                                 public void run() {
                                                     DataBase.getInstance(context).getDataUao().deleteAll();
                                                     DbHelper.resetAutoIncrement(new DbHelper(context), "MyTable");
-                                                    //DataBase.close(context);
                                                     Log.d("room", "ok");
                                                 }
                                             });
@@ -229,27 +228,26 @@ public class login extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                             if (task.isSuccessful()) {
                                                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                    Map<String, Object> habits = new HashMap<>();
-                                                                    habits.putAll(document.getData());
-                                                                    mainHabitList.add(habits);
-                                                                    mainHabitID.add(document.getId());
-                                                                    Log.d("download", document.getId() + " => " + document.getData());
-                                                                }
-
-                                                                Thread B = new Thread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        for(int i=1;i<mainHabitList.size();i++){
-                                                                            Map<String, Object> habit = mainHabitList.get(i);
+                                                                    final Map<String, Object> habit = new HashMap<>();
+                                                                    habit.putAll(document.getData());
+                                                                    new Thread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            mainHabitList.add(habit);
+                                                                            mainHabitID.add(habit.get("habitName").toString());
                                                                             MyData myData = new MyData(habit.get("habitName").toString(),
                                                                                     Integer.parseInt(habit.get("time").toString()),
                                                                                     habit.get("date").toString(),
                                                                                     Integer.parseInt(habit.get("status").toString()));
                                                                             DataBase.getInstance(context).getDataUao().insertData(myData);
+
                                                                         }
-                                                                    }
-                                                                });
-                                                                B.start();
+                                                                    }).start();
+                                                                    Log.d("download", document.getId() + " => " + document.getData());
+                                                                }
+
+
+
                                                                 try {
                                                                     A.join();
                                                                 } catch (InterruptedException e) {
@@ -262,7 +260,7 @@ public class login extends AppCompatActivity {
                                                                 intent.putExtra("userID", main_email.getText().toString().trim());
                                                                 intent.putExtra("userName",userName);
                                                                 Toast.makeText(context, "下載成功", Toast.LENGTH_SHORT).show();
-                                                                Log.d("download","下載成功");
+                                                                Log.d("download","下載成功"+mainHabitID);
                                                                 ud.dismiss();
                                                                 startActivity(intent);
                                                                 finish();

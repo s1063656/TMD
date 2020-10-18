@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         habit.put("time", HBlist.get(i).getTime());
                         habit.put("status", HBlist.get(i).getStatus());
                         mainHabitList.add(habit);
+                        mainHabitID.add(habit.get("habitName").toString());
                         Log.d("habitList",mainHabitList.get(mainHabitList.size()-1).get("habitName").toString() );
                     }else{
                         Map<String, Object> habit = new HashMap<>();

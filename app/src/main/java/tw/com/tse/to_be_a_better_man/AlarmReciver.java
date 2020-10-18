@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
 import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
+import static android.app.Notification.FLAG_AUTO_CANCEL;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
@@ -34,7 +35,7 @@ import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
 public class AlarmReciver extends BroadcastReceiver {
     String[] arrayOfAlarmString = {"", "", "", "", "", "", "", "", "", "", "", ""};
     int identifier;
-    boolean[] alarms ={false,false,false,false,false,false,false,false,false,false,false,false};
+    boolean[] alarms = {false, false, false, false, false, false, false, false, false, false, false, false};
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -44,57 +45,43 @@ public class AlarmReciver extends BroadcastReceiver {
             Log.d("intent extra", identifier + "");
             for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
                 if (MainActivity.mainHabitList.get(i).get("status").toString().equals("0")) {
-                    end(context,i);
+                    end(context, i);
                 } else {
-                    Log.d("check", i + "");
-                    if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) == identifier) {
-                        try {
-                            if(Integer.parseInt(calculateTheDay(mainHabitList.get(i).get("date").toString()))>=21){
-                                end(context,i);
-                            }else{
-                                arrayOfAlarmString[identifier / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
-                                MainActivity.mainHabitList.get(i).put("status", 0);
-                            }
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
+                    if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2 == identifier) {
+                        arrayOfAlarmString[identifier] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
+                        timeUp(context,i);
                     }
                 }
             }
             main_farm.main_adapter.notifyDataSetChanged();
-            if(!arrayOfAlarmString[identifier/2].equals("")){
-
-
-            Notification notification = new NotificationCompat.Builder(context, MainActivity.channels[identifier / 2])
-                    .setSmallIcon(R.drawable.rosemary_7)
-                    .setContentTitle("該來照顧一下你的香草囉")
-                    .setContentText(arrayOfAlarmString[identifier / 2])
-                    .setAutoCancel(true)
-                    .build();
-            manager.notify(identifier, notification);
-            setAlarm(identifier*2, context);
-            } else{
+            if (!arrayOfAlarmString[identifier].equals("")) {
+                Notification notification = new NotificationCompat.Builder(context, MainActivity.channels[identifier])
+                        .setSmallIcon(R.drawable.basil_1)
+                        .setContentTitle("該來照顧一下你的香草囉")
+                        .setContentText(arrayOfAlarmString[identifier])
+                        .setAutoCancel(true)
+                        .build();
+                manager.notify(identifier, notification);
+                setAlarm(identifier, context);
+            } else {//假設現在時間沒有任何習慣,也可以檢查是否前兩小時的習慣沒有check
                 for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
-                if (MainActivity.mainHabitList.get(i).get("status").toString().equals("0")) {
-                    end(context,i);
-                }}
+                    if (MainActivity.mainHabitList.get(i).get("status").toString().equals("0")) {
+                        end(context, i);
+                    }
+                }
             }
         } else {
             for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
                 Log.d("check", i + "");
-                arrayOfAlarmString[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
-
-
-                alarms[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2]=true;
+                //arrayOfAlarmString[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
+                alarms[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] = true;
             }
-            for(int i=0;i<12;i++){
-                if(alarms[i]){
-                    setAlarm(i,context);
-                    Log.d("set alarm",i+".alarm");
+            for (int i = 0; i < 12; i++) {
+                if (alarms[i]) {
+                    setAlarm(i, context);
+                    Log.d("set alarm", i + ".alarm");
                 }
             }
-            setAlarm(identifier*2, context);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(new Intent(context, MyService.class));
             } else {
@@ -114,7 +101,7 @@ public class AlarmReciver extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        calendar.set(Calendar.HOUR_OF_DAY, identifier);
+        calendar.set(Calendar.HOUR_OF_DAY, identifier * 2);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -139,7 +126,7 @@ public class AlarmReciver extends BroadcastReceiver {
         return Long.toString(l / (24 * 60 * 60 * 1000));
     }
 
-    private void end(final Context context, int i){
+    private void end(final Context context, int i) {
         MainActivity.historyList.add(mainHabitList.get(i));
         final Map<String, Object> habit = mainHabitList.remove(i);
         habit.put("status", -1);
@@ -147,11 +134,23 @@ public class AlarmReciver extends BroadcastReceiver {
             @Override
             public void run() {
                 MyData oldData = DataBase.getInstance(context).getDataUao().findDataByName(habit.get("habitName").toString()).get(0);
-                /*MyData myData = new MyData(habit.get("habitName").toString(),
+                DataBase.getInstance(context).getDataUao().updateData(oldData.getId(), habit.get("habitName").toString(),
                         Integer.parseInt(habit.get("time").toString()),
                         habit.get("date").toString(),
-                        Integer.parseInt(habit.get("status").toString()));*/
-                DataBase.getInstance(context).getDataUao().updateData(oldData.getId(),habit.get("habitName").toString(),
+                        Integer.parseInt(habit.get("status").toString()));
+            }
+        }).start();
+    }
+
+    private void timeUp(final Context context, int i){
+        MainActivity.mainHabitList.get(i).put("status", 0);
+        final Map<String, Object> habit = mainHabitList.get(i);
+        habit.put("status", 0);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MyData oldData = DataBase.getInstance(context).getDataUao().findDataByName(habit.get("habitName").toString()).get(0);
+                DataBase.getInstance(context).getDataUao().updateData(oldData.getId(), habit.get("habitName").toString(),
                         Integer.parseInt(habit.get("time").toString()),
                         habit.get("date").toString(),
                         Integer.parseInt(habit.get("status").toString()));

@@ -43,6 +43,7 @@ import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
 
 import static android.content.Context.ALARM_SERVICE;
+import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitID;
 import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
 
 public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleView_adapter.ViewHolder> {
@@ -73,7 +74,7 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        Map thisPositionHabitList = mainHabitList.get(position);
+        final Map thisPositionHabitList = mainHabitList.get(position);
         if (position == 0) {
             createField(holder);
         } else {
@@ -102,16 +103,12 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 holder.image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MainActivity.mainHabitList.get(position).put("status", 1);
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                final Map<String, Object> habit = mainHabitList.get(position);
-                                MyData myData = new MyData(habit.get("habitName").toString(),
-                                        Integer.parseInt(habit.get("time").toString()),
-                                        habit.get("date").toString(),
-                                        Integer.parseInt(habit.get("status").toString()));
-                                DataBase.getInstance(mcontext).getDataUao().updateData(myData);
+                                MyData habit = DataBase.getInstance(mcontext).getDataUao().findDataByName(thisPositionHabitList.get("habitName").toString()).get(0);
+                                watering(mcontext, habit.getId(),position);
                             }
                         }).start();
                         main_farm.main_adapter.notifyItemChanged(position);
@@ -158,36 +155,6 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         }
     }
 
-    /*private void setAlarm(int identifier, String item_name) {
-
-        Intent intent = new Intent(mcontext, AlarmReciver.class);
-        intent.putExtra("identify", identifier);
-        AlarmManager manager = (AlarmManager) mcontext.getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mcontext, identifier, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-        long firstTime = SystemClock.elapsedRealtime();
-        long systemTime = System.currentTimeMillis();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-
-        //測試完要套用
-        calendar.set(Calendar.HOUR_OF_DAY,identifier);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-        calendar.set(Calendar.MILLISECOND,0);
-        //calendar.add(Calendar.SECOND, 10);
-
-        long selectTime = calendar.getTimeInMillis();
-        if (systemTime > selectTime) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            selectTime = calendar.getTimeInMillis();
-        }
-        long time = selectTime - systemTime;
-        firstTime += time;
-        manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setAlarmAtRecycleView", "set :" + firstTime+ " " + item_name);
-    }*/
-
 
     public String calculateTheDay(String date) throws ParseException {
         Date last = new SimpleDateFormat("yyyy/MM/dd").parse(date);
@@ -231,8 +198,12 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                 public void onClick(View v) {
                     if (habitName.getText().toString().equals("")) {
                         Toast.makeText(mcontext, "請輸入習慣名稱", Toast.LENGTH_SHORT).show();
+                    } else if (MainActivity.mainHabitID.contains(habitName.getText().toString())) {
+                        Toast.makeText(mcontext, "習慣名稱重複", Toast.LENGTH_SHORT).show();
                     } else {
+
                         createSecondStep(habitName.getText().toString().trim(), dialog, t + (temp * 2));
+                        Log.d("IDlist", "" + mainHabitID);
                     }
                 }
             });
@@ -240,71 +211,33 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
     }
 
     private void createSecondStep(final String habitName, final Dialog dialog, final int t) {
-        /*db.collection(MainActivity.user).document(habitName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Toast.makeText(mcontext, "習慣已存在於資料庫", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "新增失敗,習慣已存在");
-                    } else {*/
-                        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-                        final Date date = new Date(System.currentTimeMillis());
-                        /*final Map<String, Object> habits = new HashMap<>();
-                        habits.put("habitName", habitName);
-                        habits.put("date", simpleDateFormat.format(date));
-                        habits.put("safety", 1);
-                        habits.put("position", MainActivity.mainHabitID.size());*/
-                        final int tempTime;
-                        if (t >= 24) {
-                            tempTime = t - 24;
-                        } else {
-                            tempTime = t;
-                        }
-                        //habits.put("time", tempTime);
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Map<String, Object> habits = new HashMap<>();
-                                habits.put("habitName",habitName);
-                                habits.put("date",simpleDateFormat.format(date));
-                                habits.put("time",tempTime);
-                                habits.put("status",1);
-                                //habits.put("position",getSize());
-                                MainActivity.mainHabitID.add(habitName);
-                                MainActivity.mainHabitList.add(habits);
-                                insertData(new MyData(habitName,tempTime,simpleDateFormat.format(date),1));
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        final Date date = new Date(System.currentTimeMillis());
+        final int tempTime;
+        if (t >= 24) {
+            tempTime = t - 24;
+        } else {
+            tempTime = t;
+        }
 
-                            }
-                        }).start();
-                        //setAlarm(tempTime, habitName);
-                        /*db.collection(MainActivity.user).document(habitName).set(habits)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        MainActivity.mainHabitID.add(habitName);
-                                        MainActivity.mainHabitList.add(habits);
-                                        Log.d("create2", "DocumentSnapshot successfully written!");
-                                        main_farm.main_adapter.notifyDataSetChanged();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("create2", "Error adding document", e);
-                                    }
-                                });*/
-                        dialog.dismiss();
-                        notifyDataSetChanged();
-                    }
-                //}
-            //}
-        //});
-    //}
-    private int getSize(){
-        return DataBase.getInstance(mcontext).getDataUao().displayAll().size();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, Object> habits = new HashMap<>();
+                habits.put("habitName", habitName);
+                habits.put("date", simpleDateFormat.format(date));
+                habits.put("time", tempTime);
+                habits.put("status", 1);
+
+                MainActivity.mainHabitID.add(habitName);
+                MainActivity.mainHabitList.add(habits);
+                insertData(new MyData(habitName, tempTime, simpleDateFormat.format(date), 1));
+            }
+        }).start();
+        dialog.dismiss();
+        notifyDataSetChanged();
     }
+
     private void createField(ViewHolder holder) {
         holder.image.setImageResource(R.drawable.ic_empty_item);
         holder.title.setText("選擇屬於你的種子");
@@ -341,8 +274,25 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         });
 
     }
-    private void insertData(MyData myData){
+
+    private void insertData(MyData myData) {
         DataBase.getInstance(mcontext).getDataUao().insertData(myData);
-        Log.d("sqlite","insert "+myData.getName());
+        Log.d("sqlite", "insert " + myData.getName());
+    }
+
+    private void watering(final Context context, int i,int p) {
+        MainActivity.mainHabitList.get(p).put("status", 1);
+        final Map<String, Object> habit = mainHabitList.get(p);
+        habit.put("status", 1);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MyData oldData = DataBase.getInstance(context).getDataUao().findDataByName(habit.get("habitName").toString()).get(0);
+                DataBase.getInstance(context).getDataUao().updateData(oldData.getId(), habit.get("habitName").toString(),
+                        Integer.parseInt(habit.get("time").toString()),
+                        habit.get("date").toString(),
+                        Integer.parseInt(habit.get("status").toString()));
+            }
+        }).start();
     }
 }

@@ -71,9 +71,7 @@ public class info_page extends Fragment {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-
                         DataBase.getInstance(getContext()).getDataUao().deleteAll();
-
                         DbHelper.resetAutoIncrement(new DbHelper(getContext()),"MyTable");
                         Log.d("room","ok");
                     }
