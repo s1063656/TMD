@@ -38,27 +38,31 @@ public class info_page extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        name.setText(MainActivity.userName);
-        email.setText(MainActivity.user);
+        name.setText(MainActivity.pref.getString("USERNAME",""));
+        email.setText(MainActivity.pref.getString("USERID",""));
         sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(),login.class);
                 getActivity().startActivity(intent);
+                getActivity().finish();
             }
         });
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), login.class);
+                //Intent intent = new Intent(getActivity(), login.class);
                 login.standBy=true;
                 MainActivity.mainHabitList.clear();
                 MainActivity.mainHabitID.clear();
+                name.setText("");
+                email.setText("");
+                MainActivity.pref.edit().clear().commit();
                 createField();
                 Toast.makeText(getActivity(),"登出",Toast.LENGTH_LONG).show();
                 for(int i=0;i<12;i++){
                     Intent alarmIntent  = new Intent(getActivity(), AlarmReciver.class);
-                    intent.setAction("SomeAction");
+                    //intent.setAction("SomeAction");
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), i, alarmIntent, PendingIntent.FLAG_NO_CREATE);
                     AlarmManager alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
                     if(pendingIntent != null) {
@@ -66,8 +70,6 @@ public class info_page extends Fragment {
                         Log.d("cancel alarm","cancel alarm : "+i);
                     }
                 }
-                startActivity(intent);
-                getActivity().finish();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -76,6 +78,11 @@ public class info_page extends Fragment {
                         Log.d("room","ok");
                     }
                 }).start();
+
+                //startActivity(intent);
+                //getActivity().finish();
+                main_farm main_farm = new main_farm();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_container, main_farm).commitAllowingStateLoss();
             }
         });
     }

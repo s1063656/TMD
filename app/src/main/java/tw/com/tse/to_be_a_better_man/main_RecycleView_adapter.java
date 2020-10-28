@@ -108,7 +108,16 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
                             @Override
                             public void run() {
                                 MyData habit = DataBase.getInstance(mcontext).getDataUao().findDataByName(thisPositionHabitList.get("habitName").toString()).get(0);
-                                watering(mcontext, habit.getId(),position);
+                                try {
+                                    if(calculateTheDay(thisPositionHabitList.get("date").toString()).equals("21")){
+                                        watering(mcontext,position,-1);
+                                    }else{
+                                        watering(mcontext,position,1);
+                                    }
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         }).start();
                         main_farm.main_adapter.notifyItemChanged(position);
@@ -280,10 +289,10 @@ public class main_RecycleView_adapter extends RecyclerView.Adapter<main_RecycleV
         Log.d("sqlite", "insert " + myData.getName());
     }
 
-    private void watering(final Context context, int i,int p) {
-        MainActivity.mainHabitList.get(p).put("status", 1);
-        final Map<String, Object> habit = mainHabitList.get(p);
-        habit.put("status", 1);
+    private void watering(final Context context, int i,int status) {
+        MainActivity.mainHabitList.get(i).put("status", status);
+        final Map<String, Object> habit = mainHabitList.get(i);
+        habit.put("status", status);
         new Thread(new Runnable() {
             @Override
             public void run() {

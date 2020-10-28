@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     testImplementation 'junit:junit:4.12'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.1.17'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.facebook.stetho:stetho:1.5.1'

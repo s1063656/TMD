@@ -9,7 +9,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -34,7 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
 import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitID;
 import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
-import static tw.com.tse.to_be_a_better_man.MainActivity.user;
+
 
 public class login extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -110,6 +109,7 @@ public class login extends AppCompatActivity {
                                     Button up = (Button) view.findViewById(R.id.upload);
                                     Button down = (Button) view.findViewById(R.id.download);
                                     pref.edit()
+                                            .putString("USERNAME",userName)
                                             .putString("USERID",main_email.getText().toString().trim())
                                             .putString("PASSWORD",main_password.getText().toString().trim())
                                             .apply();
@@ -120,10 +120,10 @@ public class login extends AppCompatActivity {
                                     DisplayMetrics dm = new DisplayMetrics();
                                     WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
                                     Display display = wm.getDefaultDisplay();
-                                    //Display display = wm.getDefaultDisplay();getWindowManager().getDefaultDisplay().getMetrics(dm);
+
                                     int width = display.getWidth();
                                     int height = display.getHeight();
-                                    p.height = (int) (height * 0.2);
+                                    p.height = (int) (height * 0.5);
                                     p.width = (int) (width * 0.8);
                                     ud.getWindow().setAttributes(p);//設定生效
 
@@ -180,8 +180,7 @@ public class login extends AppCompatActivity {
                                                                         main_farm.main_adapter.notifyDataSetChanged();
 
                                                                         Intent intent = new Intent(login.this, MainActivity.class);
-                                                                        intent.putExtra("userID", main_email.getText().toString().trim());
-                                                                        intent.putExtra("userName",userName);
+
                                                                         Toast.makeText(context, "上傳成功", Toast.LENGTH_SHORT).show();
                                                                         Log.d("upload","上傳成功");
                                                                         ud.dismiss();
@@ -366,29 +365,5 @@ public class login extends AppCompatActivity {
         if (email == null)
             return false;
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private void dbSync() {
-        db.collection(main_email.getText().toString().trim())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Map<String, Object> habits = new HashMap<>();
-                                habits.putAll(document.getData());
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                    }
-                                }).start();
-                            }
-                        } else {
-                            Log.d("sync", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
     }
 }

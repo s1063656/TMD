@@ -9,35 +9,30 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
+
 import android.util.Log;
 import android.view.View;
 
 import com.facebook.stetho.Stetho;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
 import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
-import static android.content.ContentValues.TAG;
-
 public class MainActivity extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     static String user;
+    static SharedPreferences pref;
     static List<MyData> HBlist;
     private Fragment main_farm;
     private info_page infoPage;
@@ -53,8 +48,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main);
         Stetho.initializeWithDefaults(this);
         createNotificationChanel();
-        user = this.getIntent().getStringExtra("userID");
-        userName=this.getIntent().getStringExtra("userName");
+        pref = getSharedPreferences("login",MODE_PRIVATE);
+        user = pref.getString("USERID","");
+
+        userName = pref.getString("USERNAME","");
+
         Log.d("mainActivity",""+userName);
         mainHabitList = new ArrayList();
         mainHabitID = new ArrayList();

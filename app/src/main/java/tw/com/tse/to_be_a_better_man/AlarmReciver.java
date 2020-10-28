@@ -14,47 +14,47 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
-import java.util.Date;
+
 import java.util.Map;
 import java.util.TimeZone;
 
 import tw.com.tse.to_be_a_better_man.RoomDB.DataBase;
 import tw.com.tse.to_be_a_better_man.RoomDB.MyData;
 
-import static android.app.Notification.FLAG_AUTO_CANCEL;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static tw.com.tse.to_be_a_better_man.MainActivity.historyList;
 import static tw.com.tse.to_be_a_better_man.MainActivity.mainHabitList;
 
 public class AlarmReciver extends BroadcastReceiver {
-    String[] arrayOfAlarmString = {"", "", "", "", "", "", "", "", "", "", "", ""};
-    int identifier;
-    boolean[] alarms = {false, false, false, false, false, false, false, false, false, false, false, false};
 
+    int identifier;
+    ArrayList<String> gotoHistory = new ArrayList();
     @Override
     public void onReceive(final Context context, Intent intent) {
+        String[] arrayOfAlarmString = {"", "", "", "", "", "", "", "", "", "", "", ""};
         NotificationManager manager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         identifier = intent.getIntExtra("identify", -1);
+
+        Log.d("identifier",identifier+"");
         if (identifier != -1) {
-            Log.d("intent extra", identifier + "");
             for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
-                if (MainActivity.mainHabitList.get(i).get("status").toString().equals("0")) {
-                    end(context, i);
+                Log.d("identifier",i+"");
+                Log.d("status",i+ mainHabitList.get(i).get("habitName").toString()+" status :"+Integer.parseInt(MainActivity.mainHabitList.get(i).get("status").toString()));
+                if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("status").toString())==0) {
+                    gotoHistory.add(mainHabitList.get(i).get("habitName").toString());
                 } else {
                     if (Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2 == identifier) {
                         arrayOfAlarmString[identifier] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
-                        timeUp(context,i);
+                        timeUp(context, i);
                     }
                 }
             }
-            main_farm.main_adapter.notifyDataSetChanged();
-            if (!arrayOfAlarmString[identifier].equals("")) {
+            if(!arrayOfAlarmString[identifier].equals("")){
+                main_farm.main_adapter.notifyDataSetChanged();
                 Notification notification = new NotificationCompat.Builder(context, MainActivity.channels[identifier])
                         .setSmallIcon(R.drawable.basil_1)
                         .setContentTitle("該來照顧一下你的香草囉")
@@ -62,25 +62,11 @@ public class AlarmReciver extends BroadcastReceiver {
                         .setAutoCancel(true)
                         .build();
                 manager.notify(identifier, notification);
-                setAlarm(identifier, context);
-            } else {//假設現在時間沒有任何習慣,也可以檢查是否前兩小時的習慣沒有check
-                for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
-                    if (MainActivity.mainHabitList.get(i).get("status").toString().equals("0")) {
-                        end(context, i);
-                    }
-                }
             }
+
         } else {
-            for (int i = 1; i < MainActivity.mainHabitList.size(); i++) {
-                Log.d("check", i + "");
-                //arrayOfAlarmString[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] += " [ " + MainActivity.mainHabitList.get(i).get("habitName").toString() + " ] ";
-                alarms[Integer.parseInt(MainActivity.mainHabitList.get(i).get("time").toString()) / 2] = true;
-            }
             for (int i = 0; i < 12; i++) {
-                if (alarms[i]) {
-                    setAlarm(i, context);
-                    Log.d("set alarm", i + ".alarm");
-                }
+                setAlarm(i, context);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(new Intent(context, MyService.class));
@@ -88,6 +74,9 @@ public class AlarmReciver extends BroadcastReceiver {
                 context.startService(new Intent(context, MyService.class));
             }
         }
+
+        end(context,gotoHistory);
+        gotoHistory.clear();
     }
 
 
@@ -115,34 +104,36 @@ public class AlarmReciver extends BroadcastReceiver {
         firstTime += time;
 
         manager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime, pendingIntent);
-        Log.d("setAlarmAtAlarmReceiver", "set ALARM num : " + time);
+        Log.d("setAlarmAtAlarmReceiver", "" + time);
     }
 
-    public String calculateTheDay(String date) throws ParseException {
-        Date last = new SimpleDateFormat("yyyy/MM/dd").parse(date);
-        Date now = new Date(System.currentTimeMillis());
-        long l = last.getTime() - now.getTime() > 0 ? last.getTime() - now.getTime() :
-                now.getTime() - last.getTime();
-        return Long.toString(l / (24 * 60 * 60 * 1000));
-    }
-
-    private void end(final Context context, int i) {
-        MainActivity.historyList.add(mainHabitList.get(i));
-        final Map<String, Object> habit = mainHabitList.remove(i);
-        habit.put("status", -1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MyData oldData = DataBase.getInstance(context).getDataUao().findDataByName(habit.get("habitName").toString()).get(0);
-                DataBase.getInstance(context).getDataUao().updateData(oldData.getId(), habit.get("habitName").toString(),
-                        Integer.parseInt(habit.get("time").toString()),
-                        habit.get("date").toString(),
-                        Integer.parseInt(habit.get("status").toString()));
+    private void end(final Context context, ArrayList<String> i) {
+        while(!i.isEmpty()){
+            String p = i.remove(0);
+            for(int j=1;j< mainHabitList.size();j++){
+                if(mainHabitList.get(j).get("habitName").toString().equals(p)){
+                    MainActivity.historyList.add(mainHabitList.remove(j));
+                    break;
+                }
             }
-        }).start();
+
+            final Map<String, Object> habit =historyList.get(historyList.size()-1);
+            habit.put("status", -1);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MyData oldData = DataBase.getInstance(context).getDataUao().findDataByName(habit.get("habitName").toString()).get(0);
+                    DataBase.getInstance(context).getDataUao().updateData(oldData.getId(), habit.get("habitName").toString(),
+                            Integer.parseInt(habit.get("time").toString()),
+                            habit.get("date").toString(),
+                            Integer.parseInt(habit.get("status").toString()));
+                }
+            }).start();
+            Log.d("gotoHistory",habit.get("habitName").toString());
+        }
     }
 
-    private void timeUp(final Context context, int i){
+    private void timeUp(final Context context, int i) {
         MainActivity.mainHabitList.get(i).put("status", 0);
         final Map<String, Object> habit = mainHabitList.get(i);
         habit.put("status", 0);
